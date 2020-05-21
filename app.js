@@ -28,6 +28,7 @@ class StellarObject {
     ctx.fill();
     ctx.closePath();
   }
+
   //Update de chaque objet : 1-velocité 2-dessine 3-Collisions 4-Efface les objets inutiles
   update = (particules) => {
     //1-vélocité
@@ -46,9 +47,12 @@ class StellarObject {
       }
     }
     //4-Efface les objets inutiles
-    //************************************* */
-    // Code pour delete particules hors écran
-    //*************************************** */
+    particules.map(particule => {
+      if (particule.x < 0 - particule.rayon) {
+        const deleteParticule = particules.findIndex(e => e.x === particule.x);
+        particules.splice(deleteParticule, 1)
+      }
+    })
   };
 }
 // Spawn des asteroides
