@@ -6,6 +6,7 @@ canvas.height = 400;
 
 const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1) + min);
+
 const randomFloat = (min, max) => Math.random() * (max - min) + min;
 
 const distance = (x1, y1, x2, y2) => {
@@ -92,8 +93,6 @@ class StellarObject {
   constructor(x, y, rayon, dx, dy) {
     this.x = x;
     this.y = y;
-    // this.dx = dx;
-    // this.dy = dy;
     this.velocity = { x: dx, y: dy };
     this.rayon = rayon;
     this.mass = 1;
