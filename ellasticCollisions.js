@@ -50,12 +50,13 @@ function resolveCollision(particle, otherParticle) {
         const u2 = rotate(otherParticle.velocity, angle);
 
         // Velocity after 1d collision equation
+        //m2 et m1 ont été inversé dans les soustractions pour obtenir une physique qui paret realiste
         const v1 = {
-            x: (u1.x * (m1 - m2)) / (m1 + m2) + (u2.x * 2 * m2) / (m1 + m2),
+            x: ((u1.x * (m2 - m1)) / (m1 + m2)) + ((u2.x * 2 * m2) / (m1 + m2)),
             y: u1.y,
         };
         const v2 = {
-            x: (u2.x * (m1 - m2)) / (m1 + m2) + (u1.x * 2 * m2) / (m1 + m2),
+            x: ((u2.x * (m2 - m1)) / (m1 + m2)) + ((u1.x * 2 * m2) / (m1 + m2)),
             y: u2.y,
         };
 

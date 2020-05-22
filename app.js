@@ -1,6 +1,5 @@
-import * as utils from "./utils.js"
-import * as ellasticCollisions from "./ellasticCollisions.js"
-
+import * as utils from "./utils.js";
+import * as ellasticCollisions from "./ellasticCollisions.js";
 
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
@@ -14,10 +13,10 @@ class StellarObject {
     this.y = y;
     this.velocity = {
       x: dx,
-      y: dy
+      y: dy,
     };
     this.rayon = rayon;
-    this.mass = 1;
+    this.mass = 1 / this.rayon;
   }
   //Dessine un cercle (objet stellaire en question)
   draw() {
@@ -47,12 +46,14 @@ class StellarObject {
       }
     }
     //4-Efface les objets inutiles
-    particules.map(particule => {
+    particules.map((particule) => {
       if (particule.x < 0 - particule.rayon) {
-        const deleteParticule = particules.findIndex(e => e.x === particule.x);
-        particules.splice(deleteParticule, 1)
+        const deleteParticule = particules.findIndex(
+          (e) => e.x === particule.x
+        );
+        particules.splice(deleteParticule, 1);
       }
-    })
+    });
   };
 }
 // Spawn des asteroides
@@ -60,7 +61,10 @@ let asteroids = [];
 const spawnAsteroids = () => {
   window.setInterval(() => {
     // x et y determine la position, dx et dy la vélocité et rayon le rayon de l asteroide
-    let x = utils.randomInt(canvas.width, canvas.width + (canvas.width * 20) / 100);
+    let x = utils.randomInt(
+      canvas.width,
+      canvas.width + (canvas.width * 20) / 100
+    );
     let y = utils.randomInt(
       0 - (canvas.height * 20) / 100,
       canvas.height + (canvas.height * 20) / 100
@@ -75,7 +79,10 @@ const spawnAsteroids = () => {
           utils.distance(x, y, asteroids[i].x, asteroids[i].y) <=
           rayon + asteroids[i].rayon
         ) {
-          x = utils.randomInt(canvas.width, canvas.width + (canvas.width * 20) / 100);
+          x = utils.randomInt(
+            canvas.width,
+            canvas.width + (canvas.width * 20) / 100
+          );
           y = utils.randomInt(
             0 - (canvas.height * 20) / 100,
             canvas.height + (canvas.height * 20) / 100
