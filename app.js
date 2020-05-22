@@ -21,11 +21,12 @@ class StellarObject {
   //Dessine un cercle (objet stellaire en question)
   draw() {
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
     ctx.strokeStyle = "#fff";
+    ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
     ctx.stroke();
-    ctx.fill();
+    ctx.fillStyle = "transparent";
     ctx.closePath();
+    ctx.fill();
   }
 
   //Update de chaque objet : 1-velocité 2-dessine 3-Collisions 4-Efface les objets inutiles
@@ -55,7 +56,25 @@ class StellarObject {
       }
     });
   };
-}
+};
+class StarShip {
+  constructor(x, y, w, h) {
+    this.x = x;
+    this.y = y;
+    this.width = w
+    this.height = h
+  }
+  draw() {
+
+    ctx.beginPath();
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.fillRect(this.x - this.width / 3, this.y + this.height, this.width, this.height / 2);
+    ctx.fillRect(this.x - this.width / 3, this.y - this.height / 2, this.width, this.height / 2);
+
+    ctx.closePath();
+  };
+};
 // Spawn des asteroides
 let asteroids = [];
 const spawnAsteroids = () => {
@@ -94,12 +113,21 @@ const spawnAsteroids = () => {
     asteroids.push(new StellarObject(x, y, rayon, dx, dy));
   }, 500); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
+let heroShip;
+const spawnHeroShip = () => {
+  let widthShip = 14;
+  let heightShip = 7;
+  let x = canvas.width / 8;
+  let y = canvas.height / 2 - heightShip / 2
+  heroShip = new StarShip(x, y, widthShip, heightShip)
+}
 //Rafraichie le canvas en 60 fps
 const animate = () => {
   requestAnimationFrame(animate);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   asteroids.map((asteroid) => asteroid.update(asteroids));
+  heroShip.draw()
 };
-
+spawnHeroShip();
 spawnAsteroids();
 animate();
