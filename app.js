@@ -16,7 +16,7 @@ class StellarObject {
       y: dy,
     };
     this.rayon = rayon;
-    this.mass = 1 / this.rayon;
+    this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
   }
   //Dessine un cercle (objet stellaire en question)
   draw() {
