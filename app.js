@@ -6,6 +6,11 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = 800;
 canvas.height = 400;
+
+const minMapY = -canvas.height;
+const maxMapY = 2 * canvas.height;
+
+console.log(minMapY, maxMapY);
 //Constuctor d'objets stellaires
 class StellarObject {
   constructor(x, y, rayon, dx, dy) {
@@ -54,27 +59,39 @@ class StellarObject {
         );
         particules.splice(deleteParticule, 1);
       }
+      //5-Loop la map en y
+      if (particule.y >= maxMapY) return (particule.y = minMapY);
+      if (particule.y <= minMapY) return (particule.y = maxMapY);
     });
   };
-};
+}
 class StarShip {
   constructor(x, y, w, h) {
     this.x = x;
     this.y = y;
-    this.width = w
-    this.height = h
+    this.width = w;
+    this.height = h;
   }
   draw() {
-
     ctx.beginPath();
     ctx.fillStyle = "yellow";
     ctx.fillRect(this.x, this.y, this.width, this.height);
-    ctx.fillRect(this.x - this.width / 3, this.y + this.height, this.width, this.height / 2);
-    ctx.fillRect(this.x - this.width / 3, this.y - this.height / 2, this.width, this.height / 2);
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y + this.height,
+      this.width,
+      this.height / 2
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y - this.height / 2,
+      this.width,
+      this.height / 2
+    );
 
     ctx.closePath();
-  };
-};
+  }
+}
 // Spawn des asteroides
 let asteroids = [];
 const spawnAsteroids = () => {
@@ -113,21 +130,79 @@ const spawnAsteroids = () => {
     asteroids.push(new StellarObject(x, y, rayon, dx, dy));
   }, 500); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
+
 let heroShip;
 const spawnHeroShip = () => {
-  let widthShip = 14;
-  let heightShip = 7;
+  let widthShip = 16;
+  let heightShip = 8;
   let x = canvas.width / 8;
-  let y = canvas.height / 2 - heightShip / 2
-  heroShip = new StarShip(x, y, widthShip, heightShip)
-}
+  let y = canvas.height / 2 - heightShip / 2;
+  heroShip = new StarShip(x, y, widthShip, heightShip);
+};
 //Rafraichie le canvas en 60 fps
+let velY = 0,
+  velX = 0,
+  speed = 2, // max speed
+  speedY = 1,
+  friction = 0.97, // friction
+  accelerationX = 1.25,
+  acclerationY = 1.2,
+  defSpeed = 0.1,
+  keys = [];
+const shipControl = () => {
+  if (keys[38]) {
+    if (velY < speedY) {
+      velY += defSpeed * acclerationY;
+      //defSpeed += 0.1;
+      console.log(velY);
+    }
+  }
+
+  if (keys[40]) {
+    if (velY > -speedY) {
+      velY -= defSpeed * acclerationY;
+      //defSpeed += 0.1;
+      console.log(velY);
+    }
+  }
+  if (keys[39]) {
+    if (velX < speed) {
+      velX += defSpeed; // * accelerationX;
+      //defSpeed += 0.1;
+      console.log(velX);
+    }
+  }
+  if (keys[37]) {
+    if (velX > -speed) {
+      velX -= defSpeed * accelerationX;
+      //defSpeed += 0.1;
+      console.log(velX);
+    }
+  }
+  velY *= friction;
+  defSpeed = 0.1;
+  asteroids.map((asteroid) => (asteroid.y += velY));
+
+  // apply some friction to x velocity.
+  velX *= friction;
+  heroShip.x += velX;
+};
 const animate = () => {
   requestAnimationFrame(animate);
+  shipControl();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   asteroids.map((asteroid) => asteroid.update(asteroids));
-  heroShip.draw()
+  heroShip.draw();
 };
+
+// key events
+document.body.addEventListener("keydown", function (e) {
+  keys[e.keyCode] = true;
+});
+document.body.addEventListener("keyup", function (e) {
+  keys[e.keyCode] = false;
+});
+
 spawnHeroShip();
 spawnAsteroids();
 animate();
