@@ -66,11 +66,30 @@ class StellarObject {
   };
 }
 class StarShip {
-  constructor(x, y, w, h) {
+  constructor(
+    x,
+    y,
+    w,
+    h,
+    speed,
+    speedY,
+    friction,
+    accelerationX,
+    acclerationY
+  ) {
     this.x = x;
     this.y = y;
     this.width = w;
     this.height = h;
+    this.velY = 0;
+    this.velX = 0;
+    this.speed = speed; // max speed
+    this.speedY = speedY;
+    this.friction = friction; // friction
+    this.accelerationX = accelerationX;
+    this.acclerationY = acclerationY;
+    this.defSpeed = 0.1;
+    this.keys = [];
   }
   draw() {
     ctx.beginPath();
@@ -90,6 +109,48 @@ class StarShip {
     );
 
     ctx.closePath();
+  }
+  control() {
+    if (this.keys[38]) {
+      if (this.velY < this.speedY) {
+        this.velY += this.defSpeed * this.acclerationY;
+        //defSpeed += 0.1;
+        console.log(this.velY);
+      }
+    }
+
+    if (this.keys[40]) {
+      if (this.velY > -this.speedY) {
+        this.velY -= this.defSpeed * this.acclerationY;
+        //defSpeed += 0.1;
+        console.log(this.velY);
+      }
+    }
+    if (this.keys[39]) {
+      if (this.velX < this.speed) {
+        this.velX += this.defSpeed; // * accelerationX;
+        //defSpeed += 0.1;
+        console.log(this.velX);
+      }
+    }
+    if (this.keys[37]) {
+      if (this.velX > -this.speed) {
+        this.velX -= this.defSpeed * this.accelerationX;
+        //defSpeed += 0.1;
+        console.log(this.velX);
+      }
+    }
+    this.velY *= this.friction;
+    this.defSpeed = 0.1;
+    asteroids.map((asteroid) => (asteroid.y += this.velY));
+
+    // apply some friction to x velocity.
+    this.velX *= this.friction;
+    this.x += this.velX;
+  }
+  update() {
+    this.control();
+    this.draw();
   }
 }
 // Spawn des asteroides
@@ -130,77 +191,45 @@ const spawnAsteroids = () => {
     asteroids.push(new StellarObject(x, y, rayon, dx, dy));
   }, 500); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
-
+// Spawn le vaisseau hero
 let heroShip;
 const spawnHeroShip = () => {
   let widthShip = 16;
   let heightShip = 8;
   let x = canvas.width / 8;
   let y = canvas.height / 2 - heightShip / 2;
-  heroShip = new StarShip(x, y, widthShip, heightShip);
+  let speed = 2;
+  let speedY = 1;
+  let friction = 0.97;
+  let accelerationX = 1.25;
+  let acclerationY = 1.2;
+  heroShip = new StarShip(
+    x,
+    y,
+    widthShip,
+    heightShip,
+    speed,
+    speedY,
+    friction,
+    accelerationX,
+    acclerationY
+  );
 };
+
 //Rafraichie le canvas en 60 fps
-let velY = 0,
-  velX = 0,
-  speed = 2, // max speed
-  speedY = 1,
-  friction = 0.97, // friction
-  accelerationX = 1.25,
-  acclerationY = 1.2,
-  defSpeed = 0.1,
-  keys = [];
-const shipControl = () => {
-  if (keys[38]) {
-    if (velY < speedY) {
-      velY += defSpeed * acclerationY;
-      //defSpeed += 0.1;
-      console.log(velY);
-    }
-  }
-
-  if (keys[40]) {
-    if (velY > -speedY) {
-      velY -= defSpeed * acclerationY;
-      //defSpeed += 0.1;
-      console.log(velY);
-    }
-  }
-  if (keys[39]) {
-    if (velX < speed) {
-      velX += defSpeed; // * accelerationX;
-      //defSpeed += 0.1;
-      console.log(velX);
-    }
-  }
-  if (keys[37]) {
-    if (velX > -speed) {
-      velX -= defSpeed * accelerationX;
-      //defSpeed += 0.1;
-      console.log(velX);
-    }
-  }
-  velY *= friction;
-  defSpeed = 0.1;
-  asteroids.map((asteroid) => (asteroid.y += velY));
-
-  // apply some friction to x velocity.
-  velX *= friction;
-  heroShip.x += velX;
-};
 const animate = () => {
   requestAnimationFrame(animate);
-  shipControl();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   asteroids.map((asteroid) => asteroid.update(asteroids));
-  heroShip.draw();
+  heroShip.update();
 };
 
-// key events
-document.body.addEventListener("keydown", function (e) {
-  keys[e.keyCode] = true;
+//key events
+document.addEventListener("keydown", function (e) {
+  heroShip.keys[e.keyCode] = true;
 });
-document.body.addEventListener("keyup", function (e) {
-  keys[e.keyCode] = false;
+document.addEventListener("keyup", function (e) {
+  heroShip.keys[e.keyCode] = false;
 });
 
 spawnHeroShip();
