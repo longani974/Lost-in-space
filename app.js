@@ -69,6 +69,22 @@ class StellarObject {
       if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
         init();
       }
+      heroWeapons.map(weapon => {
+        if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
+
+          const deleteParticule = particules.findIndex(
+            (e) => e.x === particule.x
+          );
+          particules.splice(deleteParticule, 1);
+
+          const deleteLaser = heroWeapons.findIndex(
+            (e) => e.x === weapon.x
+          );
+          heroWeapons.splice(deleteLaser, 1);
+
+        }
+      })
+
     });
   };
 }
@@ -97,6 +113,7 @@ class StarShip {
     this.acclerationY = acclerationY;
     this.defSpeed = 0.1;
     this.keys = [];
+    this.countKey = 0;
     this.collisionBox = {};
   }
 
@@ -129,6 +146,10 @@ class StarShip {
     ctx.closePath();
   }
   control() {
+    // Annule l'autorepeat de keydown de la touche espace
+    if (this.countKey > 1) {
+      this.keys[32] = false;
+    }
     // Up
     if (this.keys[38]) {
       if (this.velY < this.speedY) {
@@ -156,6 +177,7 @@ class StarShip {
     // Space
     if (this.keys[32]) {
       spawnWeapon();
+      this.keys[32] = false;
     }
 
     this.velY *= this.friction;
@@ -191,11 +213,14 @@ class ShipWeapon {
     this.y = heroShip.y + heroShip.height / 2;
     this.color = "red";
     this.speed = 4;
+    this.width = 8;
+    this.height = 2;
+    this.collisionBox = {}
   }
   draw() {
     ctx.beginPath();
     ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, 4, 2);
+    ctx.fillRect(this.x, this.y, this.width, this.height);
     ctx.closePath();
   }
   update = (particules) => {
@@ -203,8 +228,15 @@ class ShipWeapon {
     this.x += this.speed;
     //2-dessine
     this.draw();
-  };
-}
+    this.collisionBox = {
+      x: this.x,
+      y: this.y,
+      w: this.width,
+      h: this.height
+    }
+  }
+};
+
 // Spawn des asteroides
 let asteroids = [];
 let clearIt;
@@ -286,9 +318,11 @@ const animate = () => {
 //key events
 document.addEventListener("keydown", function (e) {
   heroShip.keys[e.keyCode] = true;
+  heroShip.countKey += 1; // Annule l'autorepeat de keydown de la touche espace
 });
 document.addEventListener("keyup", function (e) {
   heroShip.keys[e.keyCode] = false;
+  heroShip.countKey = 0; // Reinitialse la touche espace
 });
 const init = () => {
   window.clearInterval(clearIt);
