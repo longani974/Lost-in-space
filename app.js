@@ -71,7 +71,7 @@ class StellarObject {
       }
       heroWeapons.map(weapon => {
         if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
-
+          //Detruit les laser et les asteroids qui rentrent en collision
           const deleteParticule = particules.findIndex(
             (e) => e.x === particule.x
           );
@@ -81,7 +81,13 @@ class StellarObject {
             (e) => e.x === weapon.x
           );
           heroWeapons.splice(deleteLaser, 1);
-
+        }
+        //Detruit les laser qui vont trop loin en X
+        if (weapon.x > 4 * canvas.width) {
+          const deleteLaser = heroWeapons.findIndex(
+            (e) => e.x === weapon.x
+          );
+          heroWeapons.splice(deleteLaser, 1);
         }
       })
 
@@ -145,6 +151,122 @@ class StarShip {
 
     ctx.closePath();
   }
+  drawThrusterForward() {
+    ctx.beginPath();
+    ctx.fillStyle = "blue";
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y - this.height / 2,
+      -this.width / 8,
+      this.height / 2
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y - this.height / 2,
+      -this.width / 2,
+      this.height / 4
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y + this.height,
+      -this.width / 8,
+      this.height / 2
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y + this.height,
+      -this.width / 2,
+      this.height / 4
+    );
+    ctx.closePath();
+  }
+  drawThrusterBackward() {
+    ctx.beginPath();
+    ctx.fillStyle = "blue";
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y - this.height / 2,
+      this.width / 8,
+      this.height / 2
+    );
+    ctx.fillRect(
+      this.x + 2 * this.width / 3,
+      this.y - this.height / 2,
+      this.width / 2,
+      this.height / 4
+    );
+    ctx.fillRect(
+      this.x + 2 * this.width / 3,
+      this.y + this.height,
+      this.width / 8,
+      this.height / 2
+    );
+    ctx.fillRect(
+      this.x + 2 * this.width / 3,
+      this.y + this.height,
+      this.width / 2,
+      this.height / 4
+    );
+    ctx.closePath();
+  }
+  drawThrusterUp() {
+    ctx.beginPath();
+    ctx.fillStyle = "blue";
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y + this.height + this.height / 2,
+      this.height / 2,
+      this.width / 8
+    );
+    ctx.fillRect(
+      this.x + 2 * this.width / 3,
+      this.y + this.height + this.height / 2,
+      this.height / 4,
+      this.width / 2
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y + this.height + this.height / 2,
+      this.height / 4,
+      this.width / 2
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y + this.height + this.height / 2,
+      this.height / 4,
+      this.width / 2
+    );
+    ctx.closePath();
+  }
+  drawThrusterDown() {
+    ctx.beginPath();
+    ctx.fillStyle = "blue";
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y - this.height / 2,
+      -this.height / 2,
+      -this.width / 8
+    );
+    ctx.fillRect(
+      this.x + 2 * this.width / 3,
+      this.y - this.height / 2,
+      -this.height / 4,
+      -this.width / 2
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y - this.height / 2,
+      -this.height / 4,
+      -this.width / 2
+    );
+    ctx.fillRect(
+      this.x - this.width / 3,
+      this.y - this.height / 2,
+      -this.height / 4,
+      -this.width / 2
+    );
+    ctx.closePath();
+  }
   control() {
     // Annule l'autorepeat de keydown de la touche espace
     if (this.countKey > 1) {
@@ -154,6 +276,7 @@ class StarShip {
     if (this.keys[38]) {
       if (this.velY < this.speedY) {
         this.velY += this.defSpeed * this.acclerationY;
+        heroShip.drawThrusterUp()
       }
     }
     // Down
@@ -161,17 +284,20 @@ class StarShip {
       if (this.velY > -this.speedY) {
         this.velY -= this.defSpeed * this.acclerationY;
       }
+      heroShip.drawThrusterDown()
     }
     // Right
     if (this.keys[39]) {
       if (this.velX < this.speed) {
         this.velX += this.defSpeed * this.accelerationX;
+        heroShip.drawThrusterForward()
       }
     }
     // Left
     if (this.keys[37]) {
       if (this.velX > -this.speed) {
         this.velX -= this.defSpeed * this.accelerationX;
+        heroShip.drawThrusterBackward()
       }
     }
     // Space
