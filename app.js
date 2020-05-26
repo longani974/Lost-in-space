@@ -10,6 +10,9 @@ canvas.height = 400;
 const minMapY = -canvas.height;
 const maxMapY = 2 * canvas.height;
 
+const minMapX = -canvas.width;
+const maxMapX = 2 * canvas.width;
+
 //Constuctor d'objets stellaires
 class StellarObject {
   constructor(x, y, rayon, dx, dy) {
@@ -57,15 +60,20 @@ class StellarObject {
     }
     //4-Efface les objets inutiles
     particules.map((particule) => {
-      if (particule.x < 0 - particule.rayon) {
-        const deleteParticule = particules.findIndex(
-          (e) => e.x === particule.x
-        );
-        particules.splice(deleteParticule, 1);
-      }
+      // if (particule.x < 0 - particule.rayon) {
+      //   const deleteParticule = particules.findIndex(
+      //     (e) => e.x === particule.x
+      //   );
+      //   particules.splice(deleteParticule, 1);
+      // }
+      //Loop la map en x
+      if (particule.x >= maxMapX) return (particule.x = minMapX);
+      if (particule.x <= minMapX) return (particule.x = maxMapX);
       //5-Loop la map en y
       if (particule.y >= maxMapY) return (particule.y = minMapY);
       if (particule.y <= minMapY) return (particule.y = maxMapY);
+
+      //Detection et int le jeu si le vaisseau entre en collision avec un asteroide
       if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
         init();
       }
@@ -315,8 +323,8 @@ class StarShip {
 
     // apply some friction to x velocity.
     this.velX *= this.friction;
-    this.x += this.velX;
-    // asteroids.map((asteroid) => (asteroid.x -= this.velX));
+    //this.x += this.velX;
+    asteroids.map((asteroid) => (asteroid.x -= this.velX));
   }
 
   update() {
@@ -400,6 +408,7 @@ const spawnAsteroids = () => {
       }
     }
     asteroids.push(new StellarObject(x, y, rayon, dx, dy));
+    console.log(asteroids.length)
   }, 500); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
 // Spawn le vaisseau hero
@@ -407,7 +416,7 @@ let heroShip;
 const spawnHeroShip = () => {
   let widthShip = 16;
   let heightShip = widthShip / 2;
-  let x = canvas.width / 8;
+  let x = canvas.width / 2 - widthShip / 2;
   let y = canvas.height / 2 - heightShip / 2;
   let speed = 2;
   let speedY = 1;
