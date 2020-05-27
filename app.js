@@ -77,7 +77,7 @@ class StellarObject {
       if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
         init();
       }
-      heroWeapons.map(weapon => {
+      heroWeapons.map((weapon) => {
         if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
           //Detruit les laser et les asteroids qui rentrent en collision
           const deleteParticule = particules.findIndex(
@@ -85,20 +85,15 @@ class StellarObject {
           );
           particules.splice(deleteParticule, 1);
 
-          const deleteLaser = heroWeapons.findIndex(
-            (e) => e.x === weapon.x
-          );
+          const deleteLaser = heroWeapons.findIndex((e) => e.x === weapon.x);
           heroWeapons.splice(deleteLaser, 1);
         }
         //Detruit les laser qui vont trop loin en X
         if (weapon.x > 4 * canvas.width) {
-          const deleteLaser = heroWeapons.findIndex(
-            (e) => e.x === weapon.x
-          );
+          const deleteLaser = heroWeapons.findIndex((e) => e.x === weapon.x);
           heroWeapons.splice(deleteLaser, 1);
         }
-      })
-
+      });
     });
   };
 }
@@ -198,19 +193,19 @@ class StarShip {
       this.height / 2
     );
     ctx.fillRect(
-      this.x + 2 * this.width / 3,
+      this.x + (2 * this.width) / 3,
       this.y - this.height / 2,
       this.width / 2,
       this.height / 4
     );
     ctx.fillRect(
-      this.x + 2 * this.width / 3,
+      this.x + (2 * this.width) / 3,
       this.y + this.height,
       this.width / 8,
       this.height / 2
     );
     ctx.fillRect(
-      this.x + 2 * this.width / 3,
+      this.x + (2 * this.width) / 3,
       this.y + this.height,
       this.width / 2,
       this.height / 4
@@ -227,7 +222,7 @@ class StarShip {
       this.width / 8
     );
     ctx.fillRect(
-      this.x + 2 * this.width / 3,
+      this.x + (2 * this.width) / 3,
       this.y + this.height + this.height / 2,
       this.height / 4,
       this.width / 2
@@ -256,7 +251,7 @@ class StarShip {
       -this.width / 8
     );
     ctx.fillRect(
-      this.x + 2 * this.width / 3,
+      this.x + (2 * this.width) / 3,
       this.y - this.height / 2,
       -this.height / 4,
       -this.width / 2
@@ -284,7 +279,7 @@ class StarShip {
     if (this.keys[38]) {
       if (this.velY < this.speedY) {
         this.velY += this.defSpeed * this.acclerationY;
-        heroShip.drawThrusterUp()
+        heroShip.drawThrusterUp();
       }
     }
     // Down
@@ -292,20 +287,20 @@ class StarShip {
       if (this.velY > -this.speedY) {
         this.velY -= this.defSpeed * this.acclerationY;
       }
-      heroShip.drawThrusterDown()
+      heroShip.drawThrusterDown();
     }
     // Right
     if (this.keys[39]) {
       if (this.velX < this.speed) {
         this.velX += this.defSpeed * this.accelerationX;
-        heroShip.drawThrusterForward()
+        heroShip.drawThrusterForward();
       }
     }
     // Left
     if (this.keys[37]) {
       if (this.velX > -this.speed) {
         this.velX -= this.defSpeed * this.accelerationX;
-        heroShip.drawThrusterBackward()
+        heroShip.drawThrusterBackward();
       }
     }
     // Space
@@ -349,7 +344,7 @@ class ShipWeapon {
     this.speed = 4;
     this.width = 8;
     this.height = 2;
-    this.collisionBox = {}
+    this.collisionBox = {};
   }
   draw() {
     ctx.beginPath();
@@ -366,10 +361,10 @@ class ShipWeapon {
       x: this.x,
       y: this.y,
       w: this.width,
-      h: this.height
-    }
-  }
-};
+      h: this.height,
+    };
+  };
+}
 
 // Spawn des asteroides
 let asteroids = [];
@@ -407,8 +402,10 @@ const spawnAsteroids = () => {
         }
       }
     }
-    asteroids.push(new StellarObject(x, y, rayon, dx, dy));
-    console.log(asteroids.length)
+    if (asteroids.length < 250) {
+      asteroids.push(new StellarObject(x, y, rayon, dx, dy));
+    }
+    console.log(asteroids.length);
   }, 500); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
 // Spawn le vaisseau hero
