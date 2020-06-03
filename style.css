@@ -1,13 +1,77 @@
+:root {
+    --color1: rgba(216, 36, 84, 1);
+    --color2: rgba(43, 47, 114, 1);
+    --color3: rgba(0, 17, 38, 1);
+    --color4: rgba(242, 134, 72, 1);
+    --color5: rgba(191, 42, 42, 1);
+}
+
 body {
     margin: 0;
     padding: 0;
+    background-color: var(--color3);
+    font-family: 'Press Start 2P', cursive;
+    color: darkgray;
 }
 
-canvas {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translate(-50%);
-    border: 2px solid black;
-    background-color: rgb(14, 0, 24);
+#contenair {
+    width: 1200px;
+    height: 100vh;
+    margin: auto;
+    display: grid;
+    grid-template-rows: 100px 405px 1fr;
+    grid-template-columns: 1fr 800px 1fr;
+    grid-template-areas:
+        "top top top"
+        "left canvas right"
+        "bottom bottom bottom"
+    ;
+}
+
+#top {
+    color: var(--color1);
+    grid-area: top;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+h1 {
+    text-shadow: 1px 1px var(--color2),
+        2px 2px var(--color2),
+        3px 3px var(--color2);
+}
+
+h2 {
+    font-size: 18px;
+    text-decoration: underline;
+}
+
+#left {
+    grid-area: left;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+input {
+    display: block;
+    margin: 10px auto;
+}
+
+
+
+#canvas {
+    padding: 0;
+    margin: 0;
+    display: block;
+    border: 2px solid var(--color1);
+    background-color: var(--color3);
+}
+
+#right {
+    grid-area: right;
+}
+
+#bottom {
+    grid-area: bottom;
 }

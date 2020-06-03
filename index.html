@@ -6,11 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Astroids</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="shortcut icon" href="#" type="image/x-icon" />
 </head>
 
 <body>
-  <canvas id="canvas"></canvas>
+  <div id="contenair">
+    <div id="top">
+      <h1>Lost in space</h1>
+    </div>
+    <div id="left">
+      <h2>Setting:</h2>
+      <form class="settingValues">
+        <label for="shipColor">Ship color:</label>
+        <input type="color" name="shipColor" id="shipColor" value="#BF2A2A">
+        <label for="laserColor">Laser color:</label>
+        <input type="color" name="laserColor" id="laserColor" value="#D92555">
+        <label for="thrusterColor">Thruster color:</label>
+        <input type="color" name="thrusterColor" id="thursterColor" value="#2a73c0">
+        <label for="nbAsteroids">Number max of astroids:</label>
+        <input type="range" name="nbAsteroids" id="nbAsteroids" min="10" max="150">
+      </form>
+
+    </div>
+
+    <canvas id="canvas">
+    </canvas>
+
+    <div id="right"></div>
+    <div id="bottom"></div>
+  </div>
+
   <script type="module" src="app.js"></script>
 </body>
 
