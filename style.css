@@ -50,7 +50,10 @@ h2 {
     grid-area: left;
     font-size: 12px;
     display: flex;
+    margin-right: 20px;
     flex-direction: column;
+    border: 2px solid var(--color2);
+    padding: 10px;
 }
 
 input {
@@ -70,6 +73,16 @@ input {
 
 #right {
     grid-area: right;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    border: 2px solid var(--color2);
+    padding: 10px;
+}
+
+span {
+    text-align: right;
 }
 
 #bottom {

@@ -15,10 +15,28 @@ const maxMapX = 2 * canvas.width;
 
 const timeSpawn = 100;
 
+const asteroidsDestroyed = document.querySelector("#asteroidDestroyed");
+const shootNumber = document.querySelector("#shootNb");
+const precision = document.querySelector("#precision");
+
+let asteroidsDestroyedCount = 0;
+let shootCount = 0;
+
 let nbMaxAsteroids = 200;
 let shipColor = "rgba(191, 42, 42, 1)";
 let laserColor = "#D92555";
-let thrusterColor = "#2a73c0"
+let thrusterColor = "#2a73c0";
+
+//afficher les scores
+
+const score = () => {
+  let hitpercent =
+    Math.floor((asteroidsDestroyedCount / shootCount) * 100) || 0;
+
+  asteroidsDestroyed.innerHTML = `${asteroidsDestroyedCount}`;
+  shootNumber.innerHTML = `${shootCount}`;
+  precision.innerHTML = `${hitpercent}%`;
+};
 
 //Constuctor d'objets stellaires
 class StellarObject {
@@ -98,6 +116,7 @@ class StellarObject {
 
           const deleteLaser = heroWeapons.findIndex((e) => e.x === weapon.x);
           heroWeapons.splice(deleteLaser, 1);
+          asteroidsDestroyedCount++;
         }
         //Detruit les laser qui vont trop loin en X
         if (weapon.x > 4 * canvas.width) {
@@ -317,6 +336,7 @@ class StarShip {
     // Space
     if (this.keys[32]) {
       spawnWeapon();
+      shootCount++;
       this.keys[32] = false;
     }
 
@@ -459,6 +479,7 @@ const animate = () => {
   asteroids.map((asteroid) => asteroid.update(asteroids));
   heroShip.update();
   heroWeapons.map((weapon) => weapon.update(heroWeapons));
+  score();
 };
 
 //key events
@@ -472,6 +493,8 @@ document.addEventListener("keyup", function (e) {
 });
 const init = () => {
   window.clearInterval(clearIt);
+  asteroidsDestroyedCount = 0;
+  shootCount = 0;
   asteroids = [];
   spawnHeroShip();
   spawnAsteroids();
@@ -479,13 +502,19 @@ const init = () => {
 init();
 animate();
 
+/********************************************************* */
+/********************************************************* */
+/********************************************************* */
+
 const inputs = document.querySelectorAll(".settingValues input");
 
 function handleUpdate() {
-
-  const suffix = this.dataset.sizing || ""; //dataset.sizing correspond a data-sizing dans les input du HTML 
+  const suffix = this.dataset.sizing || ""; //dataset.sizing correspond a data-sizing dans les input du HTML
   //console.log(this.name, this.value + suffix)
-  document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix) //document.documentElement === document.querySelector(":root")
+  document.documentElement.style.setProperty(
+    `--${this.name}`,
+    this.value + suffix
+  ); //document.documentElement === document.querySelector(":root")
   if (this.name === "shipColor") {
     shipColor = `${this.value + suffix}`;
   }
@@ -498,7 +527,11 @@ function handleUpdate() {
   if (this.name === "nbAsteroids") {
     nbMaxAsteroids = `${this.value + suffix}`;
   }
-};
+}
 
-inputs.forEach(input => input.addEventListener("change", handleUpdate)); // sur change et mousemove pour les changements se facent en direct
-inputs.forEach(input => input.addEventListener("mousemove", handleUpdate));
+inputs.forEach((input) => input.addEventListener("change", handleUpdate)); // sur change et mousemove pour les changements se facent en direct
+inputs.forEach((input) => input.addEventListener("mousemove", handleUpdate));
+
+/********************************************************* */
+/********************************************************* */
+/********************************************************* */
