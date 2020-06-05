@@ -24,6 +24,7 @@ let stop = false;
 let asteroidsDestroyedCount = 0;
 let shootCount = 0;
 
+
 const gameOver = () => {
   stop = true;
   gameOverScreen.style.display = "block";
@@ -427,11 +428,21 @@ class MotherShip {
     this.life = 100;
   }
   draw() {
+
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
-    ctx.fillStyle = "grey";
+    ctx.fillStyle = "rgba(43, 47, 114, 1";
     ctx.closePath();
     ctx.fill();
+    // Jauge de vie
+    ctx.fillStyle = "rgba(191, 42, 42, 1)";
+    ctx.fillRect(7, 75, 40, 20);
+    ctx.fillRect(7, 325, 40, -20);
+    const damageGauge = (this.life - 100) * 40 / 100
+    ctx.fillStyle = "rgba(0, 17, 38, 1)";
+    ctx.fillRect(47, 75, damageGauge, 20);
+    ctx.fillRect(47, 325, damageGauge, -20);
+
   }
 }
 const bigShip = new MotherShip();
@@ -545,9 +556,12 @@ const init = () => {
   shootCount = 0;
   asteroidsDestroyedCount = 0
   asteroids = [];
+  heroWeapons = [];
   spawnHeroShip();
   spawnAsteroids();
   stop = false;
+  bigShip.life = 100;
+
 };
 init();
 animate();
