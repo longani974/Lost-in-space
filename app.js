@@ -10,11 +10,11 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 400;
 
-const minMapY = -canvas.height;
-const maxMapY = 2 * canvas.height;
+const minMapY = 0;
+const maxMapY = canvas.height;
 
-const minMapX = -canvas.width;
-const maxMapX = 2 * canvas.width;
+const minMapX = 0;
+const maxMapX = canvas.width;
 
 const timeSpawn = 100;
 
@@ -92,16 +92,33 @@ class StellarObject {
       //   );
       //   particules.splice(deleteParticule, 1);
       // }
+      // //Loop la map en x
+      // if (particule.x >= maxMapX) return (particule.x = minMapX);
+      // if (particule.x <= minMapX) return (particule.x = maxMapX);
+      // //5-Loop la map en y
+      // if (particule.y >= maxMapY) return (particule.y = minMapY);
+      // if (particule.y <= minMapY) return (particule.y = maxMapY);
       //Loop la map en x
-      if (particule.x >= maxMapX) return (particule.x = minMapX);
-      if (particule.x <= minMapX) return (particule.x = maxMapX);
-      //5-Loop la map en y
-      if (particule.y >= maxMapY) return (particule.y = minMapY);
-      if (particule.y <= minMapY) return (particule.y = maxMapY);
+      // Detruit les asteroid hors map
+      if (particule.y <= minMapY - particule.rayon || particule.y >= maxMapY + particule.rayon || particule.x >= 2 * maxMapX) {
+        const deleteParticule = particules.findIndex(
+          (e) => e.x === particule.x
+        );
+        particules.splice(deleteParticule, 1);
+      }
 
       //Detection et int le jeu si le vaisseau entre en collision avec un asteroide
       if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
         gameOver();
+      }
+      if (utils.distance(particule.x, particule.y, bigShip.x, bigShip.y) <= particule.rayon + bigShip.rayon) {
+        const deleteParticule = particules.findIndex(
+          (e) => e.x === particule.x
+        );
+        particules.splice(deleteParticule, 1);
+        bigShip.life -= Math.floor(particule.rayon);
+        console.log(bigShip.life);
+        if (bigShip.life <= 0) gameOver();
       }
       heroWeapons.map((weapon) => {
         if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
@@ -337,23 +354,32 @@ class StarShip {
       this.keys[32] = false;
     }
 
-    this.velY *= this.friction;
     this.defSpeed = 0.1;
-    asteroids.map((asteroid) => (asteroid.y += this.velY));
-    heroWeapons.map((weapon) => {
-      weapon.y += this.velY;
-    });
-
     // apply some friction to x velocity.
     this.velX *= this.friction;
     //this.x += this.velX;
-    asteroids.map((asteroid) => (asteroid.x -= this.velX));
+    //asteroids.map((asteroid) => (asteroid.x -= this.velX));
+    this.x += this.velX;
+    this.velY *= this.friction;
+    //asteroids.map((asteroid) => (asteroid.y += this.velY));
+    this.y -= this.velY;
+    // heroWeapons.map((weapon) => {
+    //   weapon.y += this.velY;
+    // });
+
   }
 
   update() {
     this.control();
-    if (this.x < this.width / 3) this.x = this.width / 3; //collision limite gauche
+    //if (this.x < this.width / 3) this.x = this.width / 3; //collision limite gauche
+    if (utils.RectCircleColliding(bigShip, this.collisionBox)) { // collsion bigShip
+      //gameOver()
+      this.x += 4;
+
+    };
     if (this.x > canvas.width - this.width) this.x = canvas.width - this.width; //collision limite droite
+    if (this.y < -this.height / 2) this.y = -this.height / 2; //collision limite haut
+    if (this.y > maxMapY - this.height / 2) this.y = maxMapY - this.height / 2; //collision limite bas
     this.draw();
     this.collisionBox = {
       x: this.x - this.width / 3,
@@ -392,7 +418,23 @@ class ShipWeapon {
     };
   };
 }
-
+// Mother ship
+class MotherShip {
+  constructor() {
+    this.x = -canvas.height / 2;
+    this.y = canvas.height / 2;
+    this.rayon = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    this.life = 100;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
+    ctx.fillStyle = "grey";
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+const bigShip = new MotherShip();
 // Spawn des asteroides
 let asteroids = [];
 let clearIt;
@@ -404,8 +446,8 @@ const spawnAsteroids = () => {
       canvas.width + (canvas.width * 20) / 100
     );
     let y = utils.randomInt(
-      0 - (canvas.height * 20) / 100,
-      canvas.height + (canvas.height * 20) / 100
+      minMapY,
+      maxMapY
     );
     const dx = utils.randomFloat(-0.3, -0.1);
     const dy = utils.randomFloat(-0.05, 0.05);
@@ -481,6 +523,7 @@ const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       asteroids.map((asteroid) => asteroid.update(asteroids));
       heroShip.update();
+      bigShip.draw();
       heroWeapons.map((weapon) => weapon.update(heroWeapons));
       secondary.score(asteroidsDestroyedCount, shootCount);
     }
