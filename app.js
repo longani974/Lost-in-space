@@ -169,12 +169,16 @@ class StarShip {
     this.keys = [];
     this.countKey = 0;
     this.collisionBox = {};
+    this.laserEnergyCapacity = 100;
+    this.laserEnergyLevel = 100;
+    this.laserEnergyConsumption = Math.floor(100 / 3);
   }
 
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = secondary.shipColor;
+    ctx.fillStyle = "rgba(43, 47, 114, 1)";
     ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = secondary.shipColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y + this.height,
@@ -198,6 +202,20 @@ class StarShip {
     // );
 
     ctx.closePath();
+  }
+  drawLaserCapacity() {
+    ctx.fillStyle = "secondary.shipColor";
+    if (this.laserEnergyLevel > 99) {
+      ctx.fillRect(this.x, this.y, this.width / 3, this.height);
+      ctx.fillRect(this.x + this.width / 3, this.y, this.width / 3, this.height);
+      ctx.fillRect(this.x + this.width / 3 + this.width / 3, this.y, this.width / 3, this.height);
+    } else if (this.laserEnergyLevel <= 99 && this.laserEnergyLevel >= 66) {
+      ctx.fillRect(this.x, this.y, this.width / 3, this.height);
+      ctx.fillRect(this.x + this.width / 3, this.y, this.width / 3, this.height);
+    } else if (this.laserEnergyLevel <= 65 && this.laserEnergyLevel >= 33) {
+      ctx.fillRect(this.x, this.y, this.width / 3, this.height);
+    }
+
   }
   drawThrusterForward() {
     ctx.beginPath();
@@ -349,8 +367,9 @@ class StarShip {
       }
     }
     // Space
-    if (this.keys[32]) {
+    if (this.keys[32] && (this.laserEnergyLevel - this.laserEnergyConsumption >= 0)) { //verifie que les laser soient chargé pour pouvoir tirer
       spawnWeapon();
+      this.laserEnergyLevel -= this.laserEnergyConsumption;
       shootCount++;
       this.keys[32] = false;
     }
@@ -382,6 +401,7 @@ class StarShip {
     if (this.y < -this.height / 2) this.y = -this.height / 2; //collision limite haut
     if (this.y > maxMapY - this.height / 2) this.y = maxMapY - this.height / 2; //collision limite bas
     this.draw();
+    this.drawLaserCapacity();
     this.collisionBox = {
       x: this.x - this.width / 3,
       y: this.y - this.height / 2,
@@ -537,6 +557,11 @@ const animate = () => {
       bigShip.draw();
       heroWeapons.map((weapon) => weapon.update(heroWeapons));
       secondary.score(asteroidsDestroyedCount, shootCount);
+      if (heroShip.laserEnergyLevel < 100) {
+        heroShip.laserEnergyLevel += 0.5
+        console.log(heroShip.laserEnergyLevel)
+      }
+
     }
   }, 1000 / 60)
 
