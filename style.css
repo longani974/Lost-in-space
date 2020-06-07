@@ -87,6 +87,7 @@ span {
 
 #bottom {
     grid-area: bottom;
+    text-align: center;
 }
 
 #gameOver {
