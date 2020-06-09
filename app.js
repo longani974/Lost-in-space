@@ -1,6 +1,6 @@
 import * as utils from "./utils.js";
 import * as ellasticCollisions from "./ellasticCollisions.js";
-import * as secondary from "./secondary.js"
+import * as secondary from "./secondary.js";
 
 const gameOverScreen = document.querySelector("#gameOver");
 
@@ -24,17 +24,16 @@ let stop = false;
 let asteroidsDestroyedCount = 0;
 let shootCount = 0;
 
-
 const gameOver = () => {
   stop = true;
   gameOverScreen.style.display = "block";
   document.addEventListener("keydown", function (e) {
     if (e.keyCode === 13) {
       gameOverScreen.style.display = "none";
-      init()
+      init();
     }
   });
-}
+};
 
 //Constuctor d'objets stellaires
 class StellarObject {
@@ -101,7 +100,11 @@ class StellarObject {
       // if (particule.y <= minMapY) return (particule.y = maxMapY);
       //Loop la map en x
       // Detruit les asteroid hors map
-      if (particule.y <= minMapY - particule.rayon || particule.y >= maxMapY + particule.rayon || particule.x >= 2 * maxMapX) {
+      if (
+        particule.y <= minMapY - particule.rayon ||
+        particule.y >= maxMapY + particule.rayon ||
+        particule.x >= 2 * maxMapX
+      ) {
         const deleteParticule = particules.findIndex(
           (e) => e.x === particule.x
         );
@@ -112,17 +115,35 @@ class StellarObject {
       if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
         gameOver();
       }
-      if (utils.distance(particule.x, particule.y, bigShip.x, bigShip.y) <= particule.rayon + bigShip.rayon) {
+      if (
+        utils.distance(particule.x, particule.y, bigShip.x, bigShip.y) <=
+        particule.rayon + bigShip.rayon
+      ) {
         const deleteParticule = particules.findIndex(
           (e) => e.x === particule.x
         );
         particules.splice(deleteParticule, 1);
         bigShip.life -= Math.floor(particule.rayon);
-        console.log(bigShip.life);
         if (bigShip.life <= 0) gameOver();
       }
       heroWeapons.map((weapon) => {
         if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
+          // Si le rayon de la particule est > 5 alors on divise son rayon par deux
+          if (particule.rayon > 5) {
+            let rayon = particule.rayon / 2;
+            let x = particule.x;
+            let y = particule.y;
+            let dx1 = particule.velocity.x - 0.25;
+            let dy1 = particule.velocity.y + 0.5;
+            let x2 = particule.x;
+            let y2 = particule.y;
+            let dx2 = particule.velocity.x - 0.25;
+            let dy2 = particule.velocity.y - 0.5;
+            //color = this.color;
+            console.log(particule);
+            particules.push(new StellarObject(x, y, rayon, dx1, dy1));
+            particules.push(new StellarObject(x, y, rayon, dx2, dy2));
+          }
           //Detruit les laser et les asteroids qui rentrent en collision
           const deleteParticule = particules.findIndex(
             (e) => e.x === particule.x
@@ -207,15 +228,29 @@ class StarShip {
     ctx.fillStyle = "secondary.shipColor";
     if (this.laserEnergyLevel > 99) {
       ctx.fillRect(this.x, this.y, this.width / 3, this.height);
-      ctx.fillRect(this.x + this.width / 3, this.y, this.width / 3, this.height);
-      ctx.fillRect(this.x + this.width / 3 + this.width / 3, this.y, this.width / 3, this.height);
+      ctx.fillRect(
+        this.x + this.width / 3,
+        this.y,
+        this.width / 3,
+        this.height
+      );
+      ctx.fillRect(
+        this.x + this.width / 3 + this.width / 3,
+        this.y,
+        this.width / 3,
+        this.height
+      );
     } else if (this.laserEnergyLevel <= 99 && this.laserEnergyLevel >= 66) {
       ctx.fillRect(this.x, this.y, this.width / 3, this.height);
-      ctx.fillRect(this.x + this.width / 3, this.y, this.width / 3, this.height);
+      ctx.fillRect(
+        this.x + this.width / 3,
+        this.y,
+        this.width / 3,
+        this.height
+      );
     } else if (this.laserEnergyLevel <= 65 && this.laserEnergyLevel >= 33) {
       ctx.fillRect(this.x, this.y, this.width / 3, this.height);
     }
-
   }
   drawThrusterForward() {
     ctx.beginPath();
@@ -367,7 +402,11 @@ class StarShip {
       }
     }
     // Space
-    if (this.keys[32] && (this.laserEnergyLevel - this.laserEnergyConsumption >= 0)) { //verifie que les laser soient chargé pour pouvoir tirer
+    if (
+      this.keys[32] &&
+      this.laserEnergyLevel - this.laserEnergyConsumption >= 0
+    ) {
+      //verifie que les laser soient chargé pour pouvoir tirer
       spawnWeapon();
       this.laserEnergyLevel -= this.laserEnergyConsumption;
       shootCount++;
@@ -386,17 +425,16 @@ class StarShip {
     // heroWeapons.map((weapon) => {
     //   weapon.y += this.velY;
     // });
-
   }
 
   update() {
     this.control();
     //if (this.x < this.width / 3) this.x = this.width / 3; //collision limite gauche
-    if (utils.RectCircleColliding(bigShip, this.collisionBox)) { // collsion bigShip
+    if (utils.RectCircleColliding(bigShip, this.collisionBox)) {
+      // collsion bigShip
       //gameOver()
       this.x += 4;
-
-    };
+    }
     if (this.x > canvas.width - this.width) this.x = canvas.width - this.width; //collision limite droite
     if (this.y < -this.height / 2) this.y = -this.height / 2; //collision limite haut
     if (this.y > maxMapY - this.height / 2) this.y = maxMapY - this.height / 2; //collision limite bas
@@ -448,7 +486,6 @@ class MotherShip {
     this.life = 100;
   }
   draw() {
-
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
     ctx.fillStyle = "rgba(43, 47, 114, 1";
@@ -458,11 +495,10 @@ class MotherShip {
     ctx.fillStyle = "rgba(191, 42, 42, 1)";
     ctx.fillRect(7, 75, 40, 20);
     ctx.fillRect(7, 325, 40, -20);
-    const damageGauge = (this.life - 100) * 40 / 100
+    const damageGauge = ((this.life - 100) * 40) / 100;
     ctx.fillStyle = "rgba(0, 17, 38, 1)";
     ctx.fillRect(47, 75, damageGauge, 20);
     ctx.fillRect(47, 325, damageGauge, -20);
-
   }
 }
 const bigShip = new MotherShip();
@@ -476,10 +512,7 @@ const spawnAsteroids = () => {
       canvas.width,
       canvas.width + (canvas.width * 20) / 100
     );
-    let y = utils.randomInt(
-      minMapY,
-      maxMapY
-    );
+    let y = utils.randomInt(minMapY, maxMapY);
     const dx = utils.randomFloat(-0.3, -0.1);
     const dy = utils.randomFloat(-0.05, 0.05);
     const rayon = utils.randomInt(3, 15);
@@ -558,13 +591,10 @@ const animate = () => {
       heroWeapons.map((weapon) => weapon.update(heroWeapons));
       secondary.score(asteroidsDestroyedCount, shootCount);
       if (heroShip.laserEnergyLevel < 100) {
-        heroShip.laserEnergyLevel += 0.5
-        console.log(heroShip.laserEnergyLevel)
+        heroShip.laserEnergyLevel += 0.5;
       }
-
     }
-  }, 1000 / 60)
-
+  }, 1000 / 60);
 };
 
 //key events
@@ -579,14 +609,13 @@ document.addEventListener("keyup", function (e) {
 const init = () => {
   window.clearInterval(clearIt);
   shootCount = 0;
-  asteroidsDestroyedCount = 0
+  asteroidsDestroyedCount = 0;
   asteroids = [];
   heroWeapons = [];
   spawnHeroShip();
   spawnAsteroids();
   stop = false;
   bigShip.life = 100;
-
 };
 init();
 animate();
