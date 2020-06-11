@@ -1,7 +1,6 @@
 import * as utils from "./utils.js";
 import * as ellasticCollisions from "./ellasticCollisions.js";
 import * as secondary from "./secondary.js";
-
 const gameOverScreen = document.querySelector("#gameOver");
 
 const canvas = document.querySelector("#canvas");
@@ -23,6 +22,8 @@ let stop = false;
 
 let asteroidsDestroyedCount = 0;
 let shootCount = 0;
+
+let arrExploded = [];
 
 const gameOver = () => {
   stop = true;
@@ -128,6 +129,14 @@ class StellarObject {
       }
       heroWeapons.map((weapon) => {
         if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
+          // Assure l animation de l'explosion du laser et l'asteroid
+          for (let i = 0; i < 80; i++) {
+            let x = particule.x;
+            let y = particule.y;
+            const dx = utils.randomFloat(-3, 3);
+            const dy = utils.randomFloat(-3, 3);
+            arrExploded.push(new ExplodeAsteroid(x, y, dx, dy));
+          }
           // Si le rayon de la particule est > 5 alors on divise son rayon par deux
           if (particule.rayon > 5) {
             let rayon = particule.rayon / 2;
@@ -140,7 +149,6 @@ class StellarObject {
             let dx2 = particule.velocity.x - 0.25;
             let dy2 = particule.velocity.y - 0.5;
             //color = this.color;
-            console.log(particule);
             particules.push(new StellarObject(x, y, rayon, dx1, dy1));
             particules.push(new StellarObject(x, y, rayon, dx2, dy2));
           }
@@ -501,6 +509,46 @@ class MotherShip {
     ctx.fillRect(47, 325, damageGauge, -20);
   }
 }
+
+class ExplodeAsteroid {
+  constructor(x, y, dx, dy) {
+    this.x = x;
+    this.y = y;
+    this.velocity = {
+      x: dx,
+      y: dy,
+    };
+    this.rayon = 1.5;
+    this.color = secondary.laserColor;
+    this.opacity = 1;
+  }
+  draw() {
+    ctx.save(); // empeche la propagation du globalAlpha
+    ctx.beginPath();
+    // ctx.strokeStyle = this.color;
+    ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
+    // ctx.stroke();
+    ctx.globalAlpha = this.opacity; // gere la transparence des particules d explosions
+    ctx.fillStyle = this.color;
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore(); // empeche la propagation du globalAlpha
+  }
+  update() {
+    this.opacity -= 0.01; // la particule d explosion est un peu plus transparente a chaque rafraichissement de l ecran
+    if (this.opacity <= 0) {
+      this.opacity = 0 //sans cette ligne la particule retrouve toute son opacité du à la valeur négative
+      // supprime la particule
+      const deleteParticule = arrExploded.findIndex(
+        e => e === this
+      );
+      arrExploded.splice(deleteParticule, 1);
+    };
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.draw();
+  }
+}
 const bigShip = new MotherShip();
 // Spawn des asteroides
 let asteroids = [];
@@ -589,6 +637,7 @@ const animate = () => {
       heroShip.update();
       bigShip.draw();
       heroWeapons.map((weapon) => weapon.update(heroWeapons));
+      arrExploded.map((particule) => particule.update(arrExploded));
       secondary.score(asteroidsDestroyedCount, shootCount);
       if (heroShip.laserEnergyLevel < 100) {
         heroShip.laserEnergyLevel += 0.5;
@@ -599,6 +648,7 @@ const animate = () => {
 
 //key events
 document.addEventListener("keydown", function (e) {
+  if (e.keyCode === 32 || 37 || 38 || 39 || 40) e.preventDefault();
   heroShip.keys[e.keyCode] = true;
   heroShip.countKey += 1; // Annule l'autorepeat de keydown de la touche espace
 });
@@ -612,6 +662,7 @@ const init = () => {
   asteroidsDestroyedCount = 0;
   asteroids = [];
   heroWeapons = [];
+  arrExploded = [];
   spawnHeroShip();
   spawnAsteroids();
   stop = false;

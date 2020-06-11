@@ -1,7 +1,7 @@
 /* Setting */
 let nbMaxAsteroids = 200;
 let shipColor = "rgba(191, 42, 42, 1)";
-let laserColor = "#D92555";
+let laserColor = "rgba(217, 37, 85, 1)";
 let thrusterColor = "#2a73c0";
 
 
