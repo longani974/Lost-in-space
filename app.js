@@ -10,7 +10,6 @@ canvas.height = 400;
 const minMapY = -canvas.height;
 const maxMapY = 2 * canvas.height;
 
-console.log(minMapY, maxMapY);
 //Constuctor d'objets stellaires
 class StellarObject {
   constructor(x, y, rayon, dx, dy) {
@@ -26,10 +25,10 @@ class StellarObject {
   //Dessine un cercle (objet stellaire en question)
   draw() {
     ctx.beginPath();
-    ctx.strokeStyle = "#fff";
+    // ctx.strokeStyle = this.color;
     ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.fillStyle = "transparent";
+    // ctx.stroke();
+    ctx.fillStyle = this.color;
     ctx.closePath();
     ctx.fill();
   }
@@ -62,6 +61,9 @@ class StellarObject {
       //5-Loop la map en y
       if (particule.y >= maxMapY) return (particule.y = minMapY);
       if (particule.y <= minMapY) return (particule.y = maxMapY);
+      if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
+        init();
+      }
     });
   };
 }
@@ -90,6 +92,7 @@ class StarShip {
     this.acclerationY = acclerationY;
     this.defSpeed = 0.1;
     this.keys = [];
+    this.collisionBox = {};
   }
   draw() {
     ctx.beginPath();
@@ -107,6 +110,15 @@ class StarShip {
       this.width,
       this.height / 2
     );
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.strokeStyle = "red";
+    // const collisionBox = ctx.strokeRect(
+    //   this.x - this.width / 3,
+    //   this.y - this.height / 2,
+    //   this.width + this.width / 3,
+    //   this.height * 2
+    // );
 
     ctx.closePath();
   }
@@ -114,30 +126,22 @@ class StarShip {
     if (this.keys[38]) {
       if (this.velY < this.speedY) {
         this.velY += this.defSpeed * this.acclerationY;
-        //defSpeed += 0.1;
-        console.log(this.velY);
       }
     }
 
     if (this.keys[40]) {
       if (this.velY > -this.speedY) {
         this.velY -= this.defSpeed * this.acclerationY;
-        //defSpeed += 0.1;
-        console.log(this.velY);
       }
     }
     if (this.keys[39]) {
       if (this.velX < this.speed) {
-        this.velX += this.defSpeed; // * accelerationX;
-        //defSpeed += 0.1;
-        console.log(this.velX);
+        this.velX += this.defSpeed * this.accelerationX;
       }
     }
     if (this.keys[37]) {
       if (this.velX > -this.speed) {
         this.velX -= this.defSpeed * this.accelerationX;
-        //defSpeed += 0.1;
-        console.log(this.velX);
       }
     }
     this.velY *= this.friction;
@@ -147,16 +151,27 @@ class StarShip {
     // apply some friction to x velocity.
     this.velX *= this.friction;
     this.x += this.velX;
+    // asteroids.map((asteroid) => (asteroid.x -= this.velX));
   }
+
   update() {
     this.control();
+    if (this.x < this.width / 3) this.x = this.width / 3; //collision limite gauche
+    if (this.x > canvas.width - this.width) this.x = canvas.width - this.width; //collision limite droite
     this.draw();
+    this.collisionBox = {
+      x: this.x - this.width / 3,
+      y: this.y - this.height / 2,
+      w: this.width + this.width / 3,
+      h: this.height * 2,
+    };
   }
 }
 // Spawn des asteroides
 let asteroids = [];
+let clearIt;
 const spawnAsteroids = () => {
-  window.setInterval(() => {
+  clearIt = window.setInterval(() => {
     // x et y determine la position, dx et dy la vélocité et rayon le rayon de l asteroide
     let x = utils.randomInt(
       canvas.width,
@@ -195,7 +210,7 @@ const spawnAsteroids = () => {
 let heroShip;
 const spawnHeroShip = () => {
   let widthShip = 16;
-  let heightShip = 8;
+  let heightShip = widthShip / 2;
   let x = canvas.width / 8;
   let y = canvas.height / 2 - heightShip / 2;
   let speed = 2;
@@ -231,7 +246,13 @@ document.addEventListener("keydown", function (e) {
 document.addEventListener("keyup", function (e) {
   heroShip.keys[e.keyCode] = false;
 });
-
-spawnHeroShip();
-spawnAsteroids();
+const init = () => {
+  console.log(asteroids);
+  window.clearInterval(clearIt);
+  asteroids = [];
+  console.log(asteroids);
+  spawnHeroShip();
+  spawnAsteroids();
+};
+init();
 animate();
