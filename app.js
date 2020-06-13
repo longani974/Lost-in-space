@@ -13,6 +13,13 @@ const maxMapY = 2 * canvas.height;
 const minMapX = -canvas.width;
 const maxMapX = 2 * canvas.width;
 
+const timeSpawn = 100;
+
+let nbMaxAsteroids = 200;
+let shipColor = "rgba(191, 42, 42, 1)";
+let laserColor = "#D92555";
+let thrusterColor = "#2a73c0"
+
 //Constuctor d'objets stellaires
 class StellarObject {
   constructor(x, y, rayon, dx, dy) {
@@ -24,6 +31,10 @@ class StellarObject {
     };
     this.rayon = rayon;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    this.color = "rgba(242, 134, 72, 1)";
+>>>>>>> ea8c001... structure de la page web - choix des couleurs - javascript setting
     this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
 =======
     this.mass = 1 / this.rayon;
@@ -128,7 +139,7 @@ class StarShip {
 
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = "yellow";
+    ctx.fillStyle = shipColor;
     ctx.fillRect(this.x, this.y, this.width, this.height);
     ctx.fillRect(
       this.x - this.width / 3,
@@ -156,7 +167,7 @@ class StarShip {
   }
   drawThrusterForward() {
     ctx.beginPath();
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y - this.height / 2,
@@ -185,7 +196,7 @@ class StarShip {
   }
   drawThrusterBackward() {
     ctx.beginPath();
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y - this.height / 2,
@@ -214,7 +225,7 @@ class StarShip {
   }
   drawThrusterUp() {
     ctx.beginPath();
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y + this.height + this.height / 2,
@@ -243,7 +254,7 @@ class StarShip {
   }
   drawThrusterDown() {
     ctx.beginPath();
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y - this.height / 2,
@@ -340,7 +351,6 @@ class ShipWeapon {
   constructor() {
     this.x = heroShip.x + heroShip.width;
     this.y = heroShip.y + heroShip.height / 2;
-    this.color = "red";
     this.speed = 4;
     this.width = 8;
     this.height = 2;
@@ -348,7 +358,7 @@ class ShipWeapon {
   }
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = this.color;
+    ctx.fillStyle = laserColor;
     ctx.fillRect(this.x, this.y, this.width, this.height);
     ctx.closePath();
   }
@@ -402,11 +412,15 @@ const spawnAsteroids = () => {
         }
       }
     }
+<<<<<<< HEAD
     if (asteroids.length < 250) {
       asteroids.push(new StellarObject(x, y, rayon, dx, dy));
+=======
+    if (asteroids.length < nbMaxAsteroids) {
+      asteroids.push(new StellarObject(x, y, rayon, dx, dy, color));
+>>>>>>> ea8c001... structure de la page web - choix des couleurs - javascript setting
     }
-    console.log(asteroids.length);
-  }, 500); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
+  }, timeSpawn); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
 // Spawn le vaisseau hero
 let heroShip;
@@ -464,3 +478,27 @@ const init = () => {
 };
 init();
 animate();
+
+const inputs = document.querySelectorAll(".settingValues input");
+
+function handleUpdate() {
+
+  const suffix = this.dataset.sizing || ""; //dataset.sizing correspond a data-sizing dans les input du HTML 
+  //console.log(this.name, this.value + suffix)
+  document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix) //document.documentElement === document.querySelector(":root")
+  if (this.name === "shipColor") {
+    shipColor = `${this.value + suffix}`;
+  }
+  if (this.name === "laserColor") {
+    laserColor = `${this.value + suffix}`;
+  }
+  if (this.name === "thrusterColor") {
+    thrusterColor = `${this.value + suffix}`;
+  }
+  if (this.name === "nbAsteroids") {
+    nbMaxAsteroids = `${this.value + suffix}`;
+  }
+};
+
+inputs.forEach(input => input.addEventListener("change", handleUpdate)); // sur change et mousemove pour les changements se facent en direct
+inputs.forEach(input => input.addEventListener("mousemove", handleUpdate));
