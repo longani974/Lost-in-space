@@ -20,7 +20,12 @@ class StellarObject {
       y: dy,
     };
     this.rayon = rayon;
+<<<<<<< HEAD
     this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
+=======
+    this.mass = 1 / this.rayon;
+    this.color = "grey";
+>>>>>>> 6479711... Le vaisseau tire des missiles lasers
   }
   //Dessine un cercle (objet stellaire en question)
   draw() {
@@ -94,6 +99,7 @@ class StarShip {
     this.keys = [];
     this.collisionBox = {};
   }
+
   draw() {
     ctx.beginPath();
     ctx.fillStyle = "yellow";
@@ -111,8 +117,8 @@ class StarShip {
       this.height / 2
     );
     ctx.closePath();
-    ctx.beginPath();
-    ctx.strokeStyle = "red";
+    // ctx.beginPath();
+    // ctx.strokeStyle = "red";
     // const collisionBox = ctx.strokeRect(
     //   this.x - this.width / 3,
     //   this.y - this.height / 2,
@@ -123,30 +129,41 @@ class StarShip {
     ctx.closePath();
   }
   control() {
+    // Up
     if (this.keys[38]) {
       if (this.velY < this.speedY) {
         this.velY += this.defSpeed * this.acclerationY;
       }
     }
-
+    // Down
     if (this.keys[40]) {
       if (this.velY > -this.speedY) {
         this.velY -= this.defSpeed * this.acclerationY;
       }
     }
+    // Right
     if (this.keys[39]) {
       if (this.velX < this.speed) {
         this.velX += this.defSpeed * this.accelerationX;
       }
     }
+    // Left
     if (this.keys[37]) {
       if (this.velX > -this.speed) {
         this.velX -= this.defSpeed * this.accelerationX;
       }
     }
+    // Space
+    if (this.keys[32]) {
+      spawnWeapon();
+    }
+
     this.velY *= this.friction;
     this.defSpeed = 0.1;
     asteroids.map((asteroid) => (asteroid.y += this.velY));
+    heroWeapons.map((weapon) => {
+      weapon.y += this.velY;
+    });
 
     // apply some friction to x velocity.
     this.velX *= this.friction;
@@ -166,6 +183,27 @@ class StarShip {
       h: this.height * 2,
     };
   }
+}
+
+class ShipWeapon {
+  constructor() {
+    this.x = heroShip.x + heroShip.width;
+    this.y = heroShip.y + heroShip.height / 2;
+    this.color = "red";
+    this.speed = 4;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, 4, 2);
+    ctx.closePath();
+  }
+  update = (particules) => {
+    //1-vélocité
+    this.x += this.speed;
+    //2-dessine
+    this.draw();
+  };
 }
 // Spawn des asteroides
 let asteroids = [];
@@ -231,12 +269,18 @@ const spawnHeroShip = () => {
   );
 };
 
+let heroWeapons = [];
+const spawnWeapon = () => {
+  heroWeapons.push(new ShipWeapon());
+};
+
 //Rafraichie le canvas en 60 fps
 const animate = () => {
   requestAnimationFrame(animate);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   asteroids.map((asteroid) => asteroid.update(asteroids));
   heroShip.update();
+  heroWeapons.map((weapon) => weapon.update(heroWeapons));
 };
 
 //key events
@@ -247,10 +291,8 @@ document.addEventListener("keyup", function (e) {
   heroShip.keys[e.keyCode] = false;
 });
 const init = () => {
-  console.log(asteroids);
   window.clearInterval(clearIt);
   asteroids = [];
-  console.log(asteroids);
   spawnHeroShip();
   spawnAsteroids();
 };
