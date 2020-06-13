@@ -15,7 +15,7 @@ const maxMapY = canvas.height;
 const minMapX = 0;
 const maxMapX = canvas.width;
 
-const timeSpawn = 100;
+const timeSpawn = 500;
 
 let animFrame;
 let stop = false;
@@ -46,16 +46,13 @@ class StellarObject {
       y: dy,
     };
     this.rayon = rayon;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
+
     this.color = "rgba(242, 134, 72, 1)";
->>>>>>> ea8c001... structure de la page web - choix des couleurs - javascript setting
+    // ea8c001... structure de la page web - choix des couleurs - javascript setting
     this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
-=======
-    this.mass = 1 / this.rayon;
-    this.color = "grey";
->>>>>>> 6479711... Le vaisseau tire des missiles lasers
+
+
+    //>>>>>>> 6479711... Le vaisseau tire des missiles lasers
   }
   //Dessine un cercle (objet stellaire en question)
   draw() {
@@ -568,12 +565,12 @@ const spawnAsteroids = () => {
     const dx = utils.randomFloat(-0.3, -0.1);
     const dy = utils.randomFloat(-0.05, 0.05);
     const rayon = utils.randomInt(3, 15);
+    const color = "rgba(242, 134, 72, 1)";
     //Vérifie que l asteroide ne spawn pas sur une autre asteroide deja presente et le push dans le Array
     if (asteroids.length !== 0) {
       for (let i = 0; i < asteroids.length; i++) {
         if (
-          utils.distance(x, y, asteroids[i].x, asteroids[i].y) <=
-          rayon + asteroids[i].rayon
+          utils.distance(x, y, asteroids[i].x, asteroids[i].y) <= rayon + asteroids[i].rayon
         ) {
           x = utils.randomInt(
             canvas.width,
@@ -587,19 +584,16 @@ const spawnAsteroids = () => {
         }
       }
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-    if (asteroids.length < 250) {
-      asteroids.push(new StellarObject(x, y, rayon, dx, dy));
-=======
-    if (asteroids.length < nbMaxAsteroids) {
-=======
     if (asteroids.length < secondary.nbMaxAsteroids) {
->>>>>>> 20175a1... Game Over - Affichage egame over et apuuie sur entrer pour recommencer - remplacer requestAnimationFrame() par un setInteval car après chaque gameover les fps doublaient. Nettoyage du code avec un nouveau fichier js : secondary
+
+      //>>> > 20175 a1...Game Over - Affichage egame over et apuuie sur entrer pour recommencer - remplacer requestAnimationFrame() par un setInteval car après chaque gameover les fps doublaient.Nettoyage du code avec un nouveau fichier js: secondary
       asteroids.push(new StellarObject(x, y, rayon, dx, dy, color));
->>>>>>> ea8c001... structure de la page web - choix des couleurs - javascript setting
+      // >>> > ea8c001...structure de la page web - choix des couleurs - javascript setting
+
+
     }
   }, timeSpawn); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
+
 };
 // Spawn le vaisseau hero
 let heroShip;
