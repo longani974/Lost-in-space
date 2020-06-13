@@ -59,13 +59,17 @@ class StellarObject {
   }
   //Dessine un cercle (objet stellaire en question)
   draw() {
+    ctx.save(); // empeche la propagation de shadowBlur
     ctx.beginPath();
+    ctx.shadowBlur = 15; //  Ajoute de la lumiere a l asteroid
+    ctx.shadowColor = this.color;
     // ctx.strokeStyle = this.color;
     ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
     // ctx.stroke();
     ctx.fillStyle = this.color;
     ctx.closePath();
     ctx.fill();
+    ctx.restore(); // empeche la propagation de shadowBlur
   }
 
   //Update de chaque objet : 1-velocité 2-dessine 3-Collisions 4-Efface les objets inutiles
@@ -633,6 +637,8 @@ const animate = () => {
   animationFrame = window.setInterval(() => {
     if (!stop) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // ctx.fillStyle = 'rgba(0, 17, 38, 0.1)';
+      // ctx.fillRect(0, 0, canvas.width, canvas.height);
       asteroids.map((asteroid) => asteroid.update(asteroids));
       heroShip.update();
       bigShip.draw();
