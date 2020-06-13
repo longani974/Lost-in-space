@@ -1,5 +1,8 @@
 import * as utils from "./utils.js";
 import * as ellasticCollisions from "./ellasticCollisions.js";
+import * as secondary from "./secondary.js"
+
+const gameOverScreen = document.querySelector("#gameOver");
 
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
@@ -15,28 +18,22 @@ const maxMapX = 2 * canvas.width;
 
 const timeSpawn = 100;
 
-const asteroidsDestroyed = document.querySelector("#asteroidDestroyed");
-const shootNumber = document.querySelector("#shootNb");
-const precision = document.querySelector("#precision");
+let animFrame;
+let stop = false;
 
 let asteroidsDestroyedCount = 0;
 let shootCount = 0;
 
-let nbMaxAsteroids = 200;
-let shipColor = "rgba(191, 42, 42, 1)";
-let laserColor = "#D92555";
-let thrusterColor = "#2a73c0";
-
-//afficher les scores
-
-const score = () => {
-  let hitpercent =
-    Math.floor((asteroidsDestroyedCount / shootCount) * 100) || 0;
-
-  asteroidsDestroyed.innerHTML = `${asteroidsDestroyedCount}`;
-  shootNumber.innerHTML = `${shootCount}`;
-  precision.innerHTML = `${hitpercent}%`;
-};
+const gameOver = () => {
+  stop = true;
+  gameOverScreen.style.display = "block";
+  document.addEventListener("keydown", function (e) {
+    if (e.keyCode === 13) {
+      gameOverScreen.style.display = "none";
+      init()
+    }
+  });
+}
 
 //Constuctor d'objets stellaires
 class StellarObject {
@@ -104,7 +101,7 @@ class StellarObject {
 
       //Detection et int le jeu si le vaisseau entre en collision avec un asteroide
       if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
-        init();
+        gameOver();
       }
       heroWeapons.map((weapon) => {
         if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
@@ -158,7 +155,7 @@ class StarShip {
 
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = shipColor;
+    ctx.fillStyle = secondary.shipColor;
     ctx.fillRect(this.x, this.y, this.width, this.height);
     ctx.fillRect(
       this.x - this.width / 3,
@@ -186,7 +183,7 @@ class StarShip {
   }
   drawThrusterForward() {
     ctx.beginPath();
-    ctx.fillStyle = thrusterColor;
+    ctx.fillStyle = secondary.thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y - this.height / 2,
@@ -215,7 +212,7 @@ class StarShip {
   }
   drawThrusterBackward() {
     ctx.beginPath();
-    ctx.fillStyle = thrusterColor;
+    ctx.fillStyle = secondary.thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y - this.height / 2,
@@ -244,7 +241,7 @@ class StarShip {
   }
   drawThrusterUp() {
     ctx.beginPath();
-    ctx.fillStyle = thrusterColor;
+    ctx.fillStyle = secondary.thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y + this.height + this.height / 2,
@@ -273,7 +270,7 @@ class StarShip {
   }
   drawThrusterDown() {
     ctx.beginPath();
-    ctx.fillStyle = thrusterColor;
+    ctx.fillStyle = secondary.thrusterColor;
     ctx.fillRect(
       this.x - this.width / 3,
       this.y - this.height / 2,
@@ -378,7 +375,7 @@ class ShipWeapon {
   }
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = laserColor;
+    ctx.fillStyle = secondary.laserColor;
     ctx.fillRect(this.x, this.y, this.width, this.height);
     ctx.closePath();
   }
@@ -433,10 +430,14 @@ const spawnAsteroids = () => {
       }
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (asteroids.length < 250) {
       asteroids.push(new StellarObject(x, y, rayon, dx, dy));
 =======
     if (asteroids.length < nbMaxAsteroids) {
+=======
+    if (asteroids.length < secondary.nbMaxAsteroids) {
+>>>>>>> 20175a1... Game Over - Affichage egame over et apuuie sur entrer pour recommencer - remplacer requestAnimationFrame() par un setInteval car après chaque gameover les fps doublaient. Nettoyage du code avec un nouveau fichier js : secondary
       asteroids.push(new StellarObject(x, y, rayon, dx, dy, color));
 >>>>>>> ea8c001... structure de la page web - choix des couleurs - javascript setting
     }
@@ -473,13 +474,18 @@ const spawnWeapon = () => {
 };
 
 //Rafraichie le canvas en 60 fps
+let animationFrame;
 const animate = () => {
-  requestAnimationFrame(animate);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  asteroids.map((asteroid) => asteroid.update(asteroids));
-  heroShip.update();
-  heroWeapons.map((weapon) => weapon.update(heroWeapons));
-  score();
+  animationFrame = window.setInterval(() => {
+    if (!stop) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      asteroids.map((asteroid) => asteroid.update(asteroids));
+      heroShip.update();
+      heroWeapons.map((weapon) => weapon.update(heroWeapons));
+      secondary.score(asteroidsDestroyedCount, shootCount);
+    }
+  }, 1000 / 60)
+
 };
 
 //key events
@@ -493,45 +499,13 @@ document.addEventListener("keyup", function (e) {
 });
 const init = () => {
   window.clearInterval(clearIt);
-  asteroidsDestroyedCount = 0;
   shootCount = 0;
+  asteroidsDestroyedCount = 0
   asteroids = [];
   spawnHeroShip();
   spawnAsteroids();
+  stop = false;
 };
 init();
 animate();
-
-/********************************************************* */
-/********************************************************* */
-/********************************************************* */
-
-const inputs = document.querySelectorAll(".settingValues input");
-
-function handleUpdate() {
-  const suffix = this.dataset.sizing || ""; //dataset.sizing correspond a data-sizing dans les input du HTML
-  //console.log(this.name, this.value + suffix)
-  document.documentElement.style.setProperty(
-    `--${this.name}`,
-    this.value + suffix
-  ); //document.documentElement === document.querySelector(":root")
-  if (this.name === "shipColor") {
-    shipColor = `${this.value + suffix}`;
-  }
-  if (this.name === "laserColor") {
-    laserColor = `${this.value + suffix}`;
-  }
-  if (this.name === "thrusterColor") {
-    thrusterColor = `${this.value + suffix}`;
-  }
-  if (this.name === "nbAsteroids") {
-    nbMaxAsteroids = `${this.value + suffix}`;
-  }
-}
-
-inputs.forEach((input) => input.addEventListener("change", handleUpdate)); // sur change et mousemove pour les changements se facent en direct
-inputs.forEach((input) => input.addEventListener("mousemove", handleUpdate));
-
-/********************************************************* */
-/********************************************************* */
-/********************************************************* */
+secondary.inputSetting();
