@@ -683,9 +683,9 @@ const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       // ctx.fillStyle = 'rgba(0, 17, 38, 0.1)';
       // ctx.fillRect(0, 0, canvas.width, canvas.height);
+      bigShip.draw();
       asteroids.map((asteroid) => asteroid.update(asteroids));
       heroShip.update();
-      bigShip.draw();
       heroWeapons.map((weapon) => weapon.update(heroWeapons));
       arrExploded.map((particule) => particule.update(arrExploded));
       secondary.score(asteroidsDestroyedCount, shootCount);
