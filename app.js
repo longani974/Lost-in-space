@@ -495,11 +495,61 @@ class MotherShip {
     this.life = 100;
   }
   draw() {
+    ctx.save();
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
     ctx.fillStyle = "rgba(43, 47, 114, 1";
-    ctx.closePath();
     ctx.fill();
+    ctx.closePath();
+    ctx.globalCompositeOperation = "source-atop"; // permet de dessiner uniquement sur le vaisseau mere et ne depasse pas
+    ctx.fillStyle = "rgba(0, 17, 38, 1)";
+    ctx.fillRect(3,15,10,10);
+    ctx.fillRect(55,100,20,20);
+    ctx.fillRect(30,160,10,10);
+    ctx.fillRect(10,200,20,20);
+    ctx.fillRect(30,250,10,10);
+    ctx.fillRect(70,250,10,10);
+    ctx.fillRect(-5,280,20,20);
+    ctx.fillRect(25,350,20,20);
+    ctx.fillRect(50,200,5,5);
+    ctx.fillRect(70,225,5,5);
+    ctx.fillRect(20,50,5,5);
+    ctx.fillRect(5,380,5,5);
+    ctx.fillRect(15,140,5,5);
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(0, 17, 38, 1)";
+    ctx.lineWidth = 2;
+    ctx.moveTo(8,25);
+    ctx.lineTo(8,130);
+    ctx.lineTo(35,130)
+    ctx.moveTo(8,55);
+    ctx.lineTo(0,55);
+    ctx.moveTo(8,45);
+    ctx.lineTo(38,45);
+    ctx.moveTo(65,120);
+    ctx.lineTo(65,210);
+    ctx.lineTo(30,210);
+    ctx.moveTo(10,210);
+    ctx.lineTo(0,210);
+    ctx.moveTo(20,200);
+    ctx.lineTo(20,165);
+    ctx.lineTo(30,165);
+    ctx.moveTo(35,160);
+    ctx.lineTo(35,110);
+    ctx.lineTo(55,110);
+    ctx.moveTo(65,160);
+    ctx.lineTo(80,160);
+    ctx.moveTo(35,350);
+    ctx.lineTo(35,210);
+    ctx.moveTo(35,255);
+    ctx.lineTo(70,255);
+    ctx.moveTo(25,360);
+    ctx.lineTo(0,360);
+    ctx.moveTo(15,290);
+    ctx.lineTo(35,290);
+    ctx.stroke();
+    ctx.closePath();
+    ctx.restore();
     // Jauge de vie
     ctx.fillStyle = "rgba(191, 42, 42, 1)";
     ctx.fillRect(7, 75, 40, 20);
