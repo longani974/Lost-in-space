@@ -27,8 +27,9 @@ let shootCount = 0;
 let arrExploded = [];
 
 const gameOver = () => {
-    stop = true;
-    gameOverScreen.style.display = "block";
+    stop = true; //Si stop === true la fonction animate ne s'exécute pas: donc le jeu s'arrete
+    gameOverScreen.style.display = "block"; //Affiche le texte du game over
+    //En appuyant sur entrer le jeu se relance normalement
     document.addEventListener("keydown", function (e) {
         if (e.keyCode === 13) {
             gameOverScreen.style.display = "none";
@@ -47,12 +48,8 @@ class StellarObject {
             y: dy,
         };
         this.rayon = rayon;
-
         this.color = asteroidColor;
-        // ea8c001... structure de la page web - choix des couleurs - javascript setting
         this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
-
-        //>>>>>>> 6479711... Le vaisseau tire des missiles lasers
     }
     //Dessine un cercle (objet stellaire en question)
     draw() {
@@ -60,9 +57,7 @@ class StellarObject {
         ctx.beginPath();
         ctx.shadowBlur = 15; //  Ajoute de la lumiere a l asteroid
         ctx.shadowColor = this.color;
-        // ctx.strokeStyle = this.color;
         ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
-        // ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.closePath();
         ctx.fill();
@@ -87,15 +82,9 @@ class StellarObject {
         this.draw();
         //3-Collisions
         for (let i = 0; i < particules.length; i++) {
-            if (this === particules[i]) continue;
+            if (this === particules[i]) continue; //Empeche la detection d'une collision d'une particule avec elle meme.
             if (
-                utils.distance(
-                    this.x,
-                    this.y,
-                    particules[i].x,
-                    particules[i].y
-                ) <=
-                this.rayon + particules[i].rayon
+                utils.distance(this.x, this.y, particules[i].x, particules[i].y) <= this.rayon + particules[i].rayon
             ) {
                 ellasticCollisions.resolveCollision(this, particules[i]);
             }
@@ -114,11 +103,11 @@ class StellarObject {
                 particules.splice(deleteParticule, 1);
             }
 
-            //Detection et init le jeu si le vaisseau entre en collision avec un asteroide
+            //Detection et init le jeu si le vaisseau heroShip entre en collision avec un asteroide
             if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
                 gameOver();
             }
-            //Detection collision avec le vaisseau mere (bigShip)
+            //Detection collision s'un asteroide avec le vaisseau mere (bigShip)
             if (
                 utils.distance(
                     particule.x,
@@ -137,9 +126,10 @@ class StellarObject {
                 particules.splice(deleteParticule, 1);
                 // Fait descendre la jauge de vie du vaisseau bigShip apres une collision celon la taille de l asteroid
                 bigShip.life -= Math.floor(particule.rayon);
-                // Si la jauge de vie est a zero la partie est finie
+                // Si la jauge de vie est a zero la partie est finie -- gameOver
                 if (bigShip.life <= 0) gameOver();
             }
+            //Vérifie si les lasers touchent un asteroid et exécute les fonctions en consequence
             heroWeapons.map((weapon) => {
                 if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
                     // Assure l animation de l'explosion du laser et l'asteroid
@@ -155,7 +145,6 @@ class StellarObject {
                         let y2 = particule.y;
                         let dx2 = particule.velocity.x - 0.25;
                         let dy2 = particule.velocity.y - 0.5;
-                        //color = this.color;
                         particules.push(
                             new StellarObject(x, y, rayon, dx1, dy1)
                         );
@@ -173,7 +162,7 @@ class StellarObject {
                         (e) => e.x === weapon.x
                     );
                     heroWeapons.splice(deleteLaser, 1);
-                    asteroidsDestroyedCount++;
+                    asteroidsDestroyedCount++; //incremente le nombre d'asteroids detruit
                 }
                 //Detruit les laser qui vont trop loin en X
                 if (weapon.x > 4 * canvas.width) {
@@ -211,8 +200,8 @@ class StarShip {
         this.acclerationY = acclerationY;
         this.defSpeed = 0.1;
         this.keys = [];
-        this.countKey = 0;
-        this.collisionBox = {};
+        this.countKey = 0; // Utile pour empecher l'autorepeat de la touche espace.
+        this.collisionBox = {}; //Boite virtuelle qui enveloppera le vaisseau pour gérer les colisions
         this.laserEnergyCapacity = 100;
         this.laserEnergyLevel = 100;
         this.laserEnergyConsumption = Math.floor(100 / 3);
@@ -221,14 +210,17 @@ class StarShip {
     draw() {
         ctx.beginPath();
         ctx.fillStyle = "rgba(43, 47, 114, 1)";
+        // partie du milieu (visible lorsque la jauge du laser se vide)
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = secondary.shipColor;
+        // partie basse
         ctx.fillRect(
             this.x - this.width / 3,
             this.y + this.height,
             this.width,
             this.height / 2
         );
+        // partie du haut
         ctx.fillRect(
             this.x - this.width / 3,
             this.y - this.height / 2,
@@ -236,19 +228,11 @@ class StarShip {
             this.height / 2
         );
         ctx.closePath();
-        // ctx.beginPath();
-        // ctx.strokeStyle = "red";
-        // const collisionBox = ctx.strokeRect(
-        //   this.x - this.width / 3,
-        //   this.y - this.height / 2,
-        //   this.width + this.width / 3,
-        //   this.height * 2
-        // );
-
-        ctx.closePath();
     }
+    // Dessine la Jauge de niveau du laser
     drawLaserCapacity() {
-        ctx.fillStyle = "secondary.shipColor";
+        ctx.fillStyle = secondary.shipColor;
+        //jauge pleine
         if (this.laserEnergyLevel > 99) {
             ctx.fillRect(this.x, this.y, this.width / 3, this.height);
             ctx.fillRect(
@@ -263,6 +247,7 @@ class StarShip {
                 this.width / 3,
                 this.height
             );
+            // Deux bar de jauge
         } else if (this.laserEnergyLevel <= 99 && this.laserEnergyLevel >= 66) {
             ctx.fillRect(this.x, this.y, this.width / 3, this.height);
             ctx.fillRect(
@@ -271,10 +256,12 @@ class StarShip {
                 this.width / 3,
                 this.height
             );
+            // Une bar de jauge
         } else if (this.laserEnergyLevel <= 65 && this.laserEnergyLevel >= 33) {
             ctx.fillRect(this.x, this.y, this.width / 3, this.height);
         }
     }
+    //Dessine les propulseurs -- marche avant
     drawThrusterForward() {
         ctx.beginPath();
         ctx.fillStyle = secondary.thrusterColor;
@@ -304,6 +291,7 @@ class StarShip {
         );
         ctx.closePath();
     }
+    //Dessine les propulseurs -- marche arriere
     drawThrusterBackward() {
         ctx.beginPath();
         ctx.fillStyle = secondary.thrusterColor;
@@ -333,6 +321,7 @@ class StarShip {
         );
         ctx.closePath();
     }
+    //Dessine les propulseurs -- marche vers le haut
     drawThrusterUp() {
         ctx.beginPath();
         ctx.fillStyle = secondary.thrusterColor;
@@ -362,6 +351,7 @@ class StarShip {
         );
         ctx.closePath();
     }
+    //Dessine les propulseurs -- marche vers le bas
     drawThrusterDown() {
         ctx.beginPath();
         ctx.fillStyle = secondary.thrusterColor;
@@ -391,6 +381,7 @@ class StarShip {
         );
         ctx.closePath();
     }
+    // Assure le controle du vaisseau
     control() {
         // Annule l'autorepeat de keydown de la touche espace
         if (this.countKey > 1) {
@@ -400,8 +391,8 @@ class StarShip {
         if (this.keys[38]) {
             if (this.velY < this.speedY) {
                 this.velY += this.defSpeed * this.acclerationY;
-                heroShip.drawThrusterUp();
             }
+            heroShip.drawThrusterUp();
         }
         // Down
         if (this.keys[40]) {
@@ -414,57 +405,48 @@ class StarShip {
         if (this.keys[39]) {
             if (this.velX < this.speed) {
                 this.velX += this.defSpeed * this.accelerationX;
-                heroShip.drawThrusterForward();
             }
+            heroShip.drawThrusterForward();
         }
         // Left
         if (this.keys[37]) {
             if (this.velX > -this.speed) {
                 this.velX -= this.defSpeed * this.accelerationX;
-                heroShip.drawThrusterBackward();
             }
+            heroShip.drawThrusterBackward();
         }
         // Space
+        //verifie que les laser soient chargé pour pouvoir tirer
         if (
             this.keys[32] &&
             this.laserEnergyLevel - this.laserEnergyConsumption >= 0
         ) {
-            //verifie que les laser soient chargé pour pouvoir tirer
-            spawnWeapon();
-            this.laserEnergyLevel -= this.laserEnergyConsumption;
-            shootCount++;
-            this.keys[32] = false;
+            spawnWeapon(); //fait apparetre un laser
+            this.laserEnergyLevel -= this.laserEnergyConsumption; // fait baisser le niveau d'energie alloué aux laser à chaque tir
+            shootCount++; // Compte le nombre de tire effectué
+            this.keys[32] = false; // Empeche de tirer tous les lasers en meme temps
         }
 
-        this.defSpeed = 0.1;
-        // apply some friction to x velocity.
+        // this.defSpeed = 0.1;
+        // Assure la deceleration ou l'inertie du vaisseau
         this.velX *= this.friction;
-        //this.x += this.velX;
-        //asteroids.map((asteroid) => (asteroid.x -= this.velX));
         this.x += this.velX;
         this.velY *= this.friction;
-        //asteroids.map((asteroid) => (asteroid.y += this.velY));
         this.y -= this.velY;
-        // heroWeapons.map((weapon) => {
-        //   weapon.y += this.velY;
-        // });
     }
 
     update() {
         this.control();
-        //if (this.x < this.width / 3) this.x = this.width / 3; //collision limite gauche
+        //gere la collision du vaisseau avec le vaisseau mere bigShip
         if (utils.RectCircleColliding(bigShip, this.collisionBox)) {
-            // collsion bigShip
-            //gameOver()
-            this.x += 4;
+            this.x += 4; //Creer un champs de force autour du vaisseau mere
         }
-        if (this.x > canvas.width - this.width)
-            this.x = canvas.width - this.width; //collision limite droite
+        if (this.x > canvas.width - this.width) this.x = canvas.width - this.width; //collision limite droite
         if (this.y < -this.height / 2) this.y = -this.height / 2; //collision limite haut
-        if (this.y > maxMapY - this.height / 2)
-            this.y = maxMapY - this.height / 2; //collision limite bas
-        this.draw();
-        this.drawLaserCapacity();
+        if (this.y > maxMapY - this.height / 2) this.y = maxMapY - this.height / 2; //collision limite bas
+        this.draw(); // dessine le vaisseau
+        this.drawLaserCapacity(); //dessine la jauge d energie du laser
+        //met a jour l emplacement de la Boite virtuelle qui enveloppe le vaisseau pour gérer les colisions
         this.collisionBox = {
             x: this.x - this.width / 3,
             y: this.y - this.height / 2,
@@ -473,7 +455,7 @@ class StarShip {
         };
     }
 }
-
+// Objet pour les lasers
 class ShipWeapon {
     constructor() {
         this.x = heroShip.x + heroShip.width;
@@ -570,13 +552,13 @@ class MotherShip {
         ctx.fillStyle = "rgba(191, 42, 42, 1)";
         ctx.fillRect(7, 75, 40, 20);
         ctx.fillRect(7, 325, 40, -20);
-        const damageGauge = ((this.life - 100) * 40) / 100;
+        const damageGauge = ((this.life - 100) * 40) / 100; // determine la grandeur de la jauge de vie
         ctx.fillStyle = "rgba(0, 17, 38, 1)";
         ctx.fillRect(47, 75, damageGauge, 20);
         ctx.fillRect(47, 325, damageGauge, -20);
     }
 }
-
+// Objet qui gere les explosions
 class ExplodeAsteroid {
     constructor(x, y, dx, dy, color) {
         this.x = x;
@@ -614,24 +596,22 @@ class ExplodeAsteroid {
         this.draw();
     }
 }
+//Construit le vaisseau mere bigShip
 const bigShip = new MotherShip();
 // Spawn des asteroides
 let asteroids = [];
-let clearIt;
+let clearIt; // variable pour stocker le setInterval et par la suite pouvoir l effacer grace a clearInterval dans la fonction init()
 const spawnAsteroids = () => {
     clearIt = window.setInterval(() => {
         // x et y determine la position, dx et dy la vélocité et rayon le rayon de l asteroide
-        let x = utils.randomInt(
-            canvas.width,
-            canvas.width + (canvas.width * 20) / 100
-        );
+        let x = utils.randomInt(canvas.width, canvas.width + (canvas.width * 20) / 100);
         let y = utils.randomInt(minMapY, maxMapY);
         const dx = utils.randomFloat(-0.3, -0.1);
         const dy = utils.randomFloat(-0.05, 0.05);
         const rayon = utils.randomInt(3, 15);
         const color = "rgba(242, 134, 72, 1)";
         //Vérifie que l asteroide ne spawn pas sur une autre asteroide deja presente et le push dans le Array
-        if (asteroids.length !== 0) {
+        if (asteroids.length !== 0) { // une condition pour etre sure qu il existe deja une asteroid
             for (let i = 0; i < asteroids.length; i++) {
                 if (
                     utils.distance(x, y, asteroids[i].x, asteroids[i].y) <=
@@ -649,10 +629,9 @@ const spawnAsteroids = () => {
                 }
             }
         }
+        // On ajoute des asteroides tant que le nombre max d asteroids n est pas atteint
         if (asteroids.length < secondary.nbMaxAsteroids) {
-            //>>> > 20175 a1...Game Over - Affichage egame over et apuuie sur entrer pour recommencer - remplacer requestAnimationFrame() par un setInteval car après chaque gameover les fps doublaient.Nettoyage du code avec un nouveau fichier js: secondary
             asteroids.push(new StellarObject(x, y, rayon, dx, dy, color));
-            // >>> > ea8c001...structure de la page web - choix des couleurs - javascript setting
         }
     }, timeSpawn); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
@@ -689,11 +668,9 @@ const spawnWeapon = () => {
 //Rafraichie le canvas en 60 fps
 let animationFrame;
 const animate = () => {
-    animationFrame = window.setInterval(() => {
+    animationFrame = window.setInterval(() => { // une function animationFrame a été créé car la méthode créait un bug
         if (!stop) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // ctx.fillStyle = 'rgba(0, 17, 38, 0.1)';
-            // ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // efface le canvas a chaque rafraichissement
             bigShip.draw();
             asteroids.map((asteroid) => asteroid.update(asteroids));
             heroShip.update();
@@ -701,7 +678,7 @@ const animate = () => {
             arrExploded.map((particule) => particule.update(arrExploded));
             secondary.score(asteroidsDestroyedCount, shootCount);
             if (heroShip.laserEnergyLevel < 100) {
-                heroShip.laserEnergyLevel += 0.5;
+                heroShip.laserEnergyLevel += 0.5; //fait remonter le niveau d energie des lasers a chaque rafraichissement
             }
         }
     }, 1000 / 60);
@@ -711,14 +688,15 @@ const animate = () => {
 document.addEventListener("keydown", function (e) {
     if (e.keyCode === 32 || 37 || 38 || 39 || 40) e.preventDefault();
     heroShip.keys[e.keyCode] = true;
-    heroShip.countKey += 1; // Annule l'autorepeat de keydown de la touche espace
+    if (e.keyCode === 32) heroShip.countKey += 1; // Annule l'autorepeat de keydown de la touche espace
 });
 document.addEventListener("keyup", function (e) {
     heroShip.keys[e.keyCode] = false;
-    heroShip.countKey = 0; // Reinitialse la touche espace
+    if (e.keyCode === 32) heroShip.countKey = 0; // Reinitialse la touche espace
 });
+// function pour initialiser le jeu ou le reinitialiser après un gameOver ou après l appui sur la touche entrer
 const init = () => {
-    window.clearInterval(clearIt);
+    window.clearInterval(clearIt); // reinitialise le setInterval pour spawn les asteroids
     shootCount = 0;
     asteroidsDestroyedCount = 0;
     asteroids = [];
@@ -731,4 +709,4 @@ const init = () => {
 };
 init();
 animate();
-secondary.inputSetting();
+secondary.inputSetting(); //gere les changements de parametres grace au input (changement de couleur vaiseau,laser...)
