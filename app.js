@@ -40,7 +40,7 @@ const gameOver = () => {
 
 //Constuctor d'objets stellaires
 class StellarObject {
-    constructor(x, y, rayon, dx, dy) {
+    constructor(x, y, rayon, dx, dy, heroShip) {
         this.x = x;
         this.y = y;
         this.velocity = {
@@ -50,6 +50,7 @@ class StellarObject {
         this.rayon = rayon;
         this.color = asteroidColor;
         this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
+        this.heroShip = heroShip;
     }
     //Dessine un cercle (objet stellaire en question)
     draw() {
@@ -103,8 +104,8 @@ class StellarObject {
                 particules.splice(deleteParticule, 1);
             }
 
-            //Detection et init le jeu si le vaisseau heroShip entre en collision avec un asteroide
-            if (utils.RectCircleColliding(particule, heroShip.collisionBox)) {
+            //Detection et init le jeu si le vaisseau this.starShip entre en collision avec un asteroide
+            if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) {
                 gameOver();
             }
             //Detection collision s'un asteroide avec le vaisseau mere (bigShip)
@@ -146,10 +147,10 @@ class StellarObject {
                         let dx2 = particule.velocity.x - 0.25;
                         let dy2 = particule.velocity.y - 0.5;
                         particules.push(
-                            new StellarObject(x, y, rayon, dx1, dy1)
+                            new StellarObject(x, y, rayon, dx1, dy1, heroShip)
                         );
                         particules.push(
-                            new StellarObject(x, y, rayon, dx2, dy2)
+                            new StellarObject(x, y, rayon, dx2, dy2, heroShip)
                         );
                     }
                     //Detruit les laser et les asteroids qui rentrent en collision
@@ -392,28 +393,28 @@ class StarShip {
             if (this.velY < this.speedY) {
                 this.velY += this.defSpeed * this.acclerationY;
             }
-            heroShip.drawThrusterUp();
+            this.drawThrusterUp();
         }
         // Down
         if (this.keys[40]) {
             if (this.velY > -this.speedY) {
                 this.velY -= this.defSpeed * this.acclerationY;
             }
-            heroShip.drawThrusterDown();
+            this.drawThrusterDown();
         }
         // Right
         if (this.keys[39]) {
             if (this.velX < this.speed) {
                 this.velX += this.defSpeed * this.accelerationX;
             }
-            heroShip.drawThrusterForward();
+            this.drawThrusterForward();
         }
         // Left
         if (this.keys[37]) {
             if (this.velX > -this.speed) {
                 this.velX -= this.defSpeed * this.accelerationX;
             }
-            heroShip.drawThrusterBackward();
+            this.drawThrusterBackward();
         }
         // Space
         //verifie que les laser soient chargé pour pouvoir tirer
@@ -631,7 +632,7 @@ const spawnAsteroids = () => {
         }
         // On ajoute des asteroides tant que le nombre max d asteroids n est pas atteint
         if (asteroids.length < secondary.nbMaxAsteroids) {
-            asteroids.push(new StellarObject(x, y, rayon, dx, dy, color));
+            asteroids.push(new StellarObject(x, y, rayon, dx, dy, heroShip));
         }
     }, timeSpawn); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
