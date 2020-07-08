@@ -22,13 +22,14 @@ let animFrame;
 
 let asteroidsDestroyedCount = 0;
 const asteroidColor = "rgba(242, 134, 72, 1)";
+const bonusColor = "yellow";
 let shootCount = 0;
 
 let arrExploded = [];
 
 //Constuctor d'objets stellaires
 class StellarObject {
-    constructor(x, y, rayon, dx, dy, heroShip) {
+    constructor(x, y, rayon, dx, dy, heroShip, color, haveBonus, isBonus) {
         this.x = x;
         this.y = y;
         this.velocity = {
@@ -36,9 +37,11 @@ class StellarObject {
             y: dy,
         };
         this.rayon = rayon;
-        this.color = asteroidColor;
+        this.color = color;
         this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
         this.heroShip = heroShip;
+        this.haveBonus = haveBonus; // si la particule renferme un bonus
+        this.isBonus = isBonus; // si la particule est un bonus
     }
     //Dessine un cercle (objet stellaire en question)
     draw() {
@@ -88,9 +91,15 @@ class StellarObject {
                 particule.x >= 2 * maxMapX
             ) secondary.objectToDelete(particules, particule)
 
-            //Detection et init le jeu si le vaisseau this.starShip entre en collision avec un asteroide
-            if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) secondary.gameOver(gameOverScreen, init);
-            //Detection collision s'un asteroide avec le vaisseau mere (bigShip)
+            //Detection et init le jeu si le vaisseau this.starShip entre en collision avec un asteroide ou un bonus
+            if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) {
+                if (!particule.isBonus) { //si la particule n'est pas un bonus donc un asteroid => gameOver
+                    secondary.gameOver(gameOverScreen, init);
+                } else {
+                    secondary.objectToDelete(particules, particule) //efface le bonus
+                }
+            }
+            //Detection collision d'un asteroide avec le vaisseau mere (bigShip)
             if (
                 utils.distance(
                     particule.x,
@@ -113,6 +122,11 @@ class StellarObject {
             heroWeapons.map((weapon) => {
                 if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
                     // Assure l animation de l'explosion du laser et l'asteroid
+                    if (particule.haveBonus) { // si la particule contient un bonus => spawn un bonus
+                        particules.push(
+                            new StellarObject(particule.x, particule.y, 2, -0.5, 0, heroShip, bonusColor, false, true)
+                        );
+                    }
                     this.drawExplosion(particule, 80, secondary.laserColor);
                     // Si le rayon de la particule est > 5 alors on divise son rayon par deux
                     if (particule.rayon > 5) {
@@ -126,10 +140,10 @@ class StellarObject {
                         let dx2 = particule.velocity.x - 0.25;
                         let dy2 = particule.velocity.y - 0.5;
                         particules.push(
-                            new StellarObject(x, y, rayon, dx1, dy1, heroShip)
+                            new StellarObject(x, y, rayon, dx1, dy1, heroShip, asteroidColor, true, false)
                         );
                         particules.push(
-                            new StellarObject(x, y, rayon, dx2, dy2, heroShip)
+                            new StellarObject(x, y, rayon, dx2, dy2, heroShip, asteroidColor, true, false)
                         );
                     }
                     //Detruit les laser et les asteroids qui rentrent en collision
@@ -166,7 +180,7 @@ class StarShip {
         this.friction = friction; // friction
         this.accelerationX = accelerationX;
         this.acclerationY = acclerationY;
-        this.defSpeed = 0.1;
+        this.defSpeed = 0.1; // effet acceleration
         this.keys = [];
         this.countKey = 0; // Utile pour empecher l'autorepeat de la touche espace.
         this.collisionBox = {}; //Boite virtuelle qui enveloppera le vaisseau pour gérer les colisions
@@ -600,7 +614,7 @@ const spawnAsteroids = () => {
         }
         // On ajoute des asteroides tant que le nombre max d asteroids n est pas atteint
         if (asteroids.length < secondary.nbMaxAsteroids) {
-            asteroids.push(new StellarObject(x, y, rayon, dx, dy, heroShip));
+            asteroids.push(new StellarObject(x, y, rayon, dx, dy, heroShip, asteroidColor, true, false));
         }
     }, timeSpawn); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
@@ -611,8 +625,8 @@ const spawnHeroShip = () => {
     let heightShip = widthShip / 2;
     let x = canvas.width / 2 - widthShip / 2;
     let y = canvas.height / 2 - heightShip / 2;
-    let speed = 2;
-    let speedY = 1;
+    let speed = 2; //2
+    let speedY = 1; //1
     let friction = 0.97;
     let accelerationX = 1.25;
     let acclerationY = 1.2;
