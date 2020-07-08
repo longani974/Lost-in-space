@@ -18,25 +18,13 @@ const maxMapX = canvas.width;
 const timeSpawn = 500;
 
 let animFrame;
-let stop = false;
+
 
 let asteroidsDestroyedCount = 0;
 const asteroidColor = "rgba(242, 134, 72, 1)";
 let shootCount = 0;
 
 let arrExploded = [];
-
-const gameOver = () => {
-    stop = true; //Si stop === true la fonction animate ne s'exécute pas: donc le jeu s'arrete
-    gameOverScreen.style.display = "block"; //Affiche le texte du game over
-    //En appuyant sur entrer le jeu se relance normalement
-    document.addEventListener("keydown", function (e) {
-        if (e.keyCode === 13) {
-            gameOverScreen.style.display = "none";
-            init();
-        }
-    });
-};
 
 //Constuctor d'objets stellaires
 class StellarObject {
@@ -106,7 +94,7 @@ class StellarObject {
 
             //Detection et init le jeu si le vaisseau this.starShip entre en collision avec un asteroide
             if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) {
-                gameOver();
+                secondary.gameOver(gameOverScreen, init);
             }
             //Detection collision s'un asteroide avec le vaisseau mere (bigShip)
             if (
@@ -128,7 +116,7 @@ class StellarObject {
                 // Fait descendre la jauge de vie du vaisseau bigShip apres une collision celon la taille de l asteroid
                 bigShip.life -= Math.floor(particule.rayon);
                 // Si la jauge de vie est a zero la partie est finie -- gameOver
-                if (bigShip.life <= 0) gameOver();
+                if (bigShip.life <= 0) secondary.gameOver(gameOverScreen, init);
             }
             //Vérifie si les lasers touchent un asteroid et exécute les fonctions en consequence
             heroWeapons.map((weapon) => {
@@ -670,7 +658,7 @@ const spawnWeapon = () => {
 let animationFrame;
 const animate = () => {
     animationFrame = window.setInterval(() => { // une function animationFrame a été créé car la méthode créait un bug
-        if (!stop) {
+        if (!secondary.stop) {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // efface le canvas a chaque rafraichissement
             bigShip.draw();
             asteroids.map((asteroid) => asteroid.update(asteroids));
@@ -705,7 +693,7 @@ const init = () => {
     arrExploded = [];
     spawnHeroShip();
     spawnAsteroids();
-    stop = false;
+    secondary.stopToFalse(); //passe secondary.stop a false pour lancer la function animate
     bigShip.life = 100;
 };
 init();

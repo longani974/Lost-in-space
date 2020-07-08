@@ -53,6 +53,25 @@ const score = (asteroidsDestroyedCount, shootCount) => {
     precision.innerHTML = `${hitpercent}%`;
 };
 
+//GameOver
+let stop = false;
+// Dans app.js lors d'un gameover et lorsque on appuie sur entrer on appel la function stopToFalse pour exécuter animate()
+function stopToFalse() {
+    stop = false;
+}
+
+function gameOver(gameOverScreen, func) {
+    stop = true; //Si stop === true la fonction animate ne s'exécute pas: donc le jeu s'arrete
+    gameOverScreen.style.display = "block"; //Affiche le texte du game over
+    //En appuyant sur entrer le jeu se relance normalement
+    document.addEventListener("keydown", function (e) {
+        if (e.keyCode === 13) {
+            gameOverScreen.style.display = "none";
+            func();
+        }
+    });
+};
+
 
 export {
     //setting
@@ -65,4 +84,7 @@ export {
     inputSetting,
     //score
     score,
+    stop,
+    stopToFalse,
+    gameOver
 }
