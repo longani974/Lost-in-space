@@ -1,6 +1,8 @@
 import * as utils from "./utils.js";
 import * as ellasticCollisions from "./ellasticCollisions.js";
 import * as secondary from "./secondary.js";
+import * as bonus from "./bonus.js"
+
 const gameOverScreen = document.querySelector("#gameOver");
 
 const canvas = document.querySelector("#canvas");
@@ -29,7 +31,7 @@ let arrExploded = [];
 
 //Constuctor d'objets stellaires
 class StellarObject {
-    constructor(x, y, rayon, dx, dy, heroShip, color, haveBonus, isBonus) {
+    constructor(x, y, rayon, dx, dy, heroShip, color, canHaveBonus, isBonus) {
         this.x = x;
         this.y = y;
         this.velocity = {
@@ -40,7 +42,8 @@ class StellarObject {
         this.color = color;
         this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
         this.heroShip = heroShip;
-        this.haveBonus = haveBonus; // si la particule renferme un bonus
+        this.canHaveBonus = canHaveBonus; // si la particule peut renfermer un bonus
+        this.haveBonus = utils.randomInt(1, 3); // si la particule renferme un bonus (une chance sur tois)
         this.isBonus = isBonus; // si la particule est un bonus
     }
     //Dessine un cercle (objet stellaire en question)
@@ -61,8 +64,11 @@ class StellarObject {
             let x = particule.x;
             let y = particule.y;
             const dx = utils.randomFloat(-3, 3);
-            const dy = utils.randomFloat(-3, 3);
-            arrExploded.push(new ExplodeAsteroid(x, y, dx, dy, colorExplosion));
+            const possibleY = Math.sqrt(9 - (dx * dx));
+            const dy = utils.randomFloat(-possibleY, possibleY);
+            arrExploded.push(new ExplodeAsteroid(x, y, dx, possibleY, colorExplosion)); // Explosion en demi arc de cercle vers le bas
+            arrExploded.push(new ExplodeAsteroid(x, y, dx, -possibleY, colorExplosion)); // Explosion en demi arc de cercle vers le haut
+            arrExploded.push(new ExplodeAsteroid(x, y, dx, dy, colorExplosion)); // Explosion contenu dans le cercle
         }
     }
     //Update de chaque objet : 1-velocité 2-dessine 3-Collisions 4-Efface les objets inutiles
@@ -96,7 +102,9 @@ class StellarObject {
                 if (!particule.isBonus) { //si la particule n'est pas un bonus donc un asteroid => gameOver
                     secondary.gameOver(gameOverScreen, init);
                 } else {
-                    secondary.objectToDelete(particules, particule) //efface le bonus
+                    bonus.speedUp(this.heroShip); // la vitesse max du heroShip augmente lorsqu il intercepte un bonus
+                    console.log(this.heroShip.speed, this.heroShip.speedY);
+                    secondary.objectToDelete(particules, particule) //efface le bonus après avoir été intercepte
                 }
             }
             //Detection collision d'un asteroide avec le vaisseau mere (bigShip)
@@ -122,7 +130,7 @@ class StellarObject {
             heroWeapons.map((weapon) => {
                 if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
                     // Assure l animation de l'explosion du laser et l'asteroid
-                    if (particule.haveBonus) { // si la particule contient un bonus => spawn un bonus
+                    if (particule.canHaveBonus && particule.haveBonus === 3) { // si la particule peut contenir (asteroid) et contient un bonus => spawn un bonus
                         particules.push(
                             new StellarObject(particule.x, particule.y, 2, -0.5, 0, heroShip, bonusColor, false, true)
                         );
@@ -625,8 +633,8 @@ const spawnHeroShip = () => {
     let heightShip = widthShip / 2;
     let x = canvas.width / 2 - widthShip / 2;
     let y = canvas.height / 2 - heightShip / 2;
-    let speed = 2; //2
-    let speedY = 1; //1
+    let speed = 0.5; //2
+    let speedY = 0.25; //1
     let friction = 0.97;
     let accelerationX = 1.25;
     let acclerationY = 1.2;
