@@ -72,7 +72,13 @@ function gameOver(gameOverScreen, func) {
     });
 };
 
-
+// détruit un objet en particulier dans un tableau (laser ou asteroid)
+const objectToDelete = (arrObjects, object) => {
+    const deleteObject = arrObjects.findIndex( //trouve l'objet à détruire (même position x) il est improbable que deux objets est exactement le même x
+        (e) => e.x === object.x
+    );
+    arrObjects.splice(deleteObject, 1); //enleve cet objet du tableau
+}
 export {
     //setting
     thrusterColor,
@@ -86,5 +92,6 @@ export {
     score,
     stop,
     stopToFalse,
-    gameOver
+    gameOver,
+    objectToDelete
 }

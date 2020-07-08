@@ -78,6 +78,7 @@ class StellarObject {
                 ellasticCollisions.resolveCollision(this, particules[i]);
             }
         }
+
         //4-Efface les objets inutiles
         particules.map((particule) => {
             // Detruit les asteroid hors map
@@ -85,17 +86,10 @@ class StellarObject {
                 particule.y <= minMapY - particule.rayon ||
                 particule.y >= maxMapY + particule.rayon ||
                 particule.x >= 2 * maxMapX
-            ) {
-                const deleteParticule = particules.findIndex(
-                    (e) => e.x === particule.x
-                );
-                particules.splice(deleteParticule, 1);
-            }
+            ) secondary.objectToDelete(particules, particule)
 
             //Detection et init le jeu si le vaisseau this.starShip entre en collision avec un asteroide
-            if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) {
-                secondary.gameOver(gameOverScreen, init);
-            }
+            if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) secondary.gameOver(gameOverScreen, init);
             //Detection collision s'un asteroide avec le vaisseau mere (bigShip)
             if (
                 utils.distance(
@@ -106,13 +100,10 @@ class StellarObject {
                 ) <=
                 particule.rayon + bigShip.rayon
             ) {
-                const deleteParticule = particules.findIndex(
-                    (e) => e.x === particule.x
-                );
+                //Efface l asteroid apres la collision avec le vaisseau mere bigShip
+                secondary.objectToDelete(particules, particule);
                 //dessine l explosion asreroid contre le bigShip
                 this.drawExplosion(particule, 80, asteroidColor);
-                //Efface l asteroid apres la collision avec le vaisseau mere bigShip
-                particules.splice(deleteParticule, 1);
                 // Fait descendre la jauge de vie du vaisseau bigShip apres une collision celon la taille de l asteroid
                 bigShip.life -= Math.floor(particule.rayon);
                 // Si la jauge de vie est a zero la partie est finie -- gameOver
@@ -142,24 +133,12 @@ class StellarObject {
                         );
                     }
                     //Detruit les laser et les asteroids qui rentrent en collision
-                    const deleteParticule = particules.findIndex(
-                        (e) => e.x === particule.x
-                    );
-                    particules.splice(deleteParticule, 1);
-
-                    const deleteLaser = heroWeapons.findIndex(
-                        (e) => e.x === weapon.x
-                    );
-                    heroWeapons.splice(deleteLaser, 1);
+                    secondary.objectToDelete(particules, particule);
+                    secondary.objectToDelete(heroWeapons, weapon);
                     asteroidsDestroyedCount++; //incremente le nombre d'asteroids detruit
                 }
                 //Detruit les laser qui vont trop loin en X
-                if (weapon.x > 4 * canvas.width) {
-                    const deleteLaser = heroWeapons.findIndex(
-                        (e) => e.x === weapon.x
-                    );
-                    heroWeapons.splice(deleteLaser, 1);
-                }
+                if (weapon.x > 4 * canvas.width) secondary.objectToDelete(heroWeapons, weapon);
             });
         });
     };
@@ -577,8 +556,9 @@ class ExplodeAsteroid {
         if (this.opacity <= 0) {
             this.opacity = 0; //sans cette ligne la particule retrouve toute son opacité du à la valeur négative
             // supprime la particule
-            const deleteParticule = arrExploded.findIndex((e) => e === this);
-            arrExploded.splice(deleteParticule, 1);
+            // const deleteParticule = arrExploded.findIndex((e) => e === this);
+            // arrExploded.splice(deleteParticule, 1);
+            secondary.objectToDelete(arrExploded, this);
         }
         this.x += this.velocity.x;
         this.y += this.velocity.y;
