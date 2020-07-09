@@ -19,6 +19,8 @@ const maxMapX = canvas.width;
 
 const timeSpawn = 500;
 
+
+
 let animFrame;
 
 
@@ -43,7 +45,7 @@ class StellarObject {
         this.mass = 1 / this.rayon; // la masse doit etre inversement proportionnel au rayon (a la taille) pour que l'algorithme fonctionne correctement
         this.heroShip = heroShip;
         this.canHaveBonus = canHaveBonus; // si la particule peut renfermer un bonus
-        this.haveBonus = utils.randomInt(1, 3); // si la particule renferme un bonus (une chance sur tois)
+        this.haveBonus = utils.randomInt(3, 3); // si la particule renferme un bonus (une chance sur trois)
         this.isBonus = isBonus; // si la particule est un bonus
     }
     //Dessine un cercle (objet stellaire en question)
@@ -99,11 +101,12 @@ class StellarObject {
 
             //Detection et init le jeu si le vaisseau this.starShip entre en collision avec un asteroide ou un bonus
             if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) {
-                if (!particule.isBonus) { //si la particule n'est pas un bonus donc un asteroid => gameOver
+                if (!particule.isBonus) { //si la particule n'est pas un bonus donc est un asteroid => gameOver
                     secondary.gameOver(gameOverScreen, init);
-                } else {
-                    bonus.speedUp(this.heroShip); // la vitesse max du heroShip augmente lorsqu il intercepte un bonus
-                    console.log(this.heroShip.speed, this.heroShip.speedY);
+                } else { //applique le bonus reçu
+                    const bonusNb = utils.randomInt(0, bonusChance.length - 1); //choisi un nombre au haseard entre 0 et la longueur moins 1 du tableau bonus chance
+                    const chance = bonusChance[bonusNb]; //stock le numero correspondant au bonus
+                    bonus.applyBonus(chance, heroShip); // applique le bonus correspondant
                     secondary.objectToDelete(particules, particule) //efface le bonus après avoir été intercepte
                 }
             }
@@ -686,6 +689,7 @@ document.addEventListener("keyup", function (e) {
     if (e.keyCode === 32) heroShip.countKey = 0; // Reinitialse la touche espace
 });
 // function pour initialiser le jeu ou le reinitialiser après un gameOver ou après l appui sur la touche entrer
+let bonusChance;
 const init = () => {
     window.clearInterval(clearIt); // reinitialise le setInterval pour spawn les asteroids
     shootCount = 0;
@@ -697,6 +701,7 @@ const init = () => {
     spawnAsteroids();
     secondary.stopToFalse(); //passe secondary.stop a false pour lancer la function animate
     bigShip.life = 100;
+    bonusChance = utils.createChanceArr(bonus.bonusDice.thinks, bonus.bonusDice.weigth); // tableau stoquant les bonus dans lequel sera tiré au sort un bonus a chaque creation de l objet bonus
 };
 init();
 animate();

@@ -26,11 +26,25 @@ const RectCircleColliding = (circle, rect) => {
     }
 }
 
+// Céer un tableau de choses a tirer au hasard mais plus cette chose a un poid élevé plus elle a de chance d etre tiré au hasard
+function createChanceArr(thinks, weight) {
+    const arrChance = []
+    if (thinks.length === weight.length) {
+        for (let i = 0; i < thinks.length; i++) {
+            for (let j = 0; j < weight[i]; j++) {
+                arrChance.push(thinks[i]) // on ajout au tableau une chose le nombre de fois correspondant à son poid
+            }
+        }
+    } else return console.error("!!!! thinks.length != weight.length !!!!"); // return un message d erreur si le nb de valeur du tableau de choses n est pas egale a celui du tableau des poids conrespondant
+    return arrChance
+}
+
 
 
 export {
     randomInt,
     randomFloat,
     distance,
-    RectCircleColliding
+    RectCircleColliding,
+    createChanceArr
 };
