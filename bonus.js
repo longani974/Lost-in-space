@@ -4,18 +4,23 @@ const bonusDice = {
 }
 
 const speedUp = (ship) => { // function augmente la vitesse max du vaisseau
-    console.log("speedUp")
     ship.speed = ship.speed + 1 / 10;
     ship.speedY = ship.speed / 2
+}
+
+const laserLoadFatser = (ship) => { // function augmente la vitesse de recharge des lasers
+    ship.laserLoadTime += 0.05;
 }
 
 const applyBonus = (Number, heroShip) => { // applique le bonus correspondant au Number
     switch (Number) {
         case 1:
-            speedUp(heroShip)
+            speedUp(heroShip);
+            console.log("speedUp")
             break;
         case 2:
-            console.log("reloadFaster")
+            laserLoadFatser(heroShip);
+            console.log("laserLoadFaster")
             break;
         case 3:
             console.log("bigBomb")
@@ -28,5 +33,6 @@ const applyBonus = (Number, heroShip) => { // applique le bonus correspondant au
 export {
     bonusDice,
     speedUp,
-    applyBonus
+    laserLoadFatser,
+    applyBonus,
 };

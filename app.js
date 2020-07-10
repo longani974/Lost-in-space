@@ -8,8 +8,8 @@ const gameOverScreen = document.querySelector("#gameOver");
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 800;
-canvas.height = 400;
+canvas.width = 800; //window.innerWidth; 
+canvas.height = 400; //window.innerHeight; 
 
 const minMapY = 0;
 const maxMapY = canvas.height;
@@ -22,7 +22,6 @@ const timeSpawn = 500;
 
 
 let animFrame;
-
 
 let asteroidsDestroyedCount = 0;
 const asteroidColor = "rgba(242, 134, 72, 1)";
@@ -198,6 +197,7 @@ class StarShip {
         this.laserEnergyCapacity = 100;
         this.laserEnergyLevel = 100;
         this.laserEnergyConsumption = Math.floor(100 / 3);
+        this.laserLoadTime = 0.2; // temps pour recharger la jauge laser;
     }
 
     draw() {
@@ -672,7 +672,7 @@ const animate = () => {
             arrExploded.map((particule) => particule.update(arrExploded));
             secondary.score(asteroidsDestroyedCount, shootCount);
             if (heroShip.laserEnergyLevel < 100) {
-                heroShip.laserEnergyLevel += 0.5; //fait remonter le niveau d energie des lasers a chaque rafraichissement
+                heroShip.laserEnergyLevel += heroShip.laserLoadTime; //fait remonter le niveau d energie des lasers a chaque rafraichissement
             }
         }
     }, 1000 / 60);
