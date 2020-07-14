@@ -23,6 +23,7 @@ const applyBonus = (Number, heroShip) => { // applique le bonus correspondant au
             console.log("laserLoadFaster")
             break;
         case 3:
+            heroShip.haveBomb = true; // donne le bonus bomb
             console.log("bigBomb")
             break;
         default:

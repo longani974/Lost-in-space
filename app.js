@@ -1,15 +1,15 @@
 import * as utils from "./utils.js";
 import * as ellasticCollisions from "./ellasticCollisions.js";
 import * as secondary from "./secondary.js";
-import * as bonus from "./bonus.js"
+import * as bonus from "./bonus.js";
 
 const gameOverScreen = document.querySelector("#gameOver");
 
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 800; //window.innerWidth; 
-canvas.height = 400; //window.innerHeight; 
+canvas.width = 800; //window.innerWidth;
+canvas.height = 400; //window.innerHeight;
 
 const minMapY = 0;
 const maxMapY = canvas.height;
@@ -19,8 +19,6 @@ const maxMapX = canvas.width;
 
 const timeSpawn = 500;
 
-
-
 let animFrame;
 
 let asteroidsDestroyedCount = 0;
@@ -29,6 +27,7 @@ const bonusColor = "yellow";
 let shootCount = 0;
 
 let arrExploded = [];
+let arrBombExploded = [];
 
 //Constuctor d'objets stellaires
 class StellarObject {
@@ -65,12 +64,26 @@ class StellarObject {
             let x = particule.x;
             let y = particule.y;
             const dx = utils.randomFloat(-3, 3);
-            const possibleY = Math.sqrt(9 - (dx * dx));
+            const possibleY = Math.sqrt(9 - dx * dx);
             const dy = utils.randomFloat(-possibleY, possibleY);
-            arrExploded.push(new ExplodeAsteroid(x, y, dx, possibleY, colorExplosion)); // Explosion en demi arc de cercle vers le bas
-            arrExploded.push(new ExplodeAsteroid(x, y, dx, -possibleY, colorExplosion)); // Explosion en demi arc de cercle vers le haut
+            arrExploded.push(
+                new ExplodeAsteroid(x, y, dx, possibleY, colorExplosion)
+            ); // Explosion en demi arc de cercle vers le bas
+            arrExploded.push(
+                new ExplodeAsteroid(x, y, dx, -possibleY, colorExplosion)
+            ); // Explosion en demi arc de cercle vers le haut
             arrExploded.push(new ExplodeAsteroid(x, y, dx, dy, colorExplosion)); // Explosion contenu dans le cercle
         }
+
+
+    }
+    drawBombExplosion(particule, colorExplosion) {
+        let x = particule.x;
+        let y = particule.y;
+        arrBombExploded.push(
+            new BombExplosion(x, y, colorExplosion)
+        );
+
     }
     //Update de chaque objet : 1-velocité 2-dessine 3-Collisions 4-Efface les objets inutiles
     update = (particules) => {
@@ -83,7 +96,8 @@ class StellarObject {
         for (let i = 0; i < particules.length; i++) {
             if (this === particules[i]) continue; //Empeche la detection d'une collision d'une particule avec elle meme.
             if (
-                utils.distance(this.x, this.y, particules[i].x, particules[i].y) <= this.rayon + particules[i].rayon
+                utils.distance(this.x, this.y, particules[i].x, particules[i].y) <=
+                this.rayon + particules[i].rayon
             ) {
                 ellasticCollisions.resolveCollision(this, particules[i]);
             }
@@ -96,33 +110,31 @@ class StellarObject {
                 particule.y <= minMapY - particule.rayon ||
                 particule.y >= maxMapY + particule.rayon ||
                 particule.x >= 2 * maxMapX
-            ) secondary.objectToDelete(particules, particule)
+            )
+                secondary.objectToDelete(particules, particule);
 
             //Detection et init le jeu si le vaisseau this.starShip entre en collision avec un asteroide ou un bonus
             if (utils.RectCircleColliding(particule, this.heroShip.collisionBox)) {
-                if (!particule.isBonus) { //si la particule n'est pas un bonus donc est un asteroid => gameOver
+                if (!particule.isBonus) {
+                    //si la particule n'est pas un bonus donc est un asteroid => gameOver
                     secondary.gameOver(gameOverScreen, init);
-                } else { //applique le bonus reçu
+                } else {
+                    //applique le bonus reçu
                     const bonusNb = utils.randomInt(0, bonusChance.length - 1); //choisi un nombre au haseard entre 0 et la longueur moins 1 du tableau bonus chance
                     const chance = bonusChance[bonusNb]; //stock le numero correspondant au bonus
                     bonus.applyBonus(chance, heroShip); // applique le bonus correspondant
-                    secondary.objectToDelete(particules, particule) //efface le bonus après avoir été intercepte
+                    secondary.objectToDelete(particules, particule); //efface le bonus après avoir été intercepte
                 }
             }
             //Detection collision d'un asteroide avec le vaisseau mere (bigShip)
             if (
-                utils.distance(
-                    particule.x,
-                    particule.y,
-                    bigShip.x,
-                    bigShip.y
-                ) <=
+                utils.distance(particule.x, particule.y, bigShip.x, bigShip.y) <=
                 particule.rayon + bigShip.rayon
             ) {
                 //Efface l asteroid apres la collision avec le vaisseau mere bigShip
                 secondary.objectToDelete(particules, particule);
                 //dessine l explosion asreroid contre le bigShip
-                this.drawExplosion(particule, 80, asteroidColor);
+                this.drawExplosion(particule, 40, asteroidColor);
                 // Fait descendre la jauge de vie du vaisseau bigShip apres une collision celon la taille de l asteroid
                 bigShip.life -= Math.floor(particule.rayon);
                 // Si la jauge de vie est a zero la partie est finie -- gameOver
@@ -132,14 +144,25 @@ class StellarObject {
             heroWeapons.map((weapon) => {
                 if (utils.RectCircleColliding(particule, weapon.collisionBox)) {
                     // Assure l animation de l'explosion du laser et l'asteroid
-                    if (particule.canHaveBonus && particule.haveBonus === 3) { // si la particule peut contenir (asteroid) et contient un bonus => spawn un bonus
+                    if (particule.canHaveBonus && particule.haveBonus === 3) {
+                        // si la particule peut contenir (asteroid) et contient un bonus => spawn un bonus
                         particules.push(
-                            new StellarObject(particule.x, particule.y, 2, -0.5, 0, heroShip, bonusColor, false, true)
+                            new StellarObject(
+                                particule.x,
+                                particule.y,
+                                2,
+                                -0.5,
+                                0,
+                                heroShip,
+                                bonusColor,
+                                false,
+                                true
+                            )
                         );
                     }
-                    this.drawExplosion(particule, 80, secondary.laserColor);
+                    //this.drawExplosion(particule, 80, secondary.laserColor);
                     // Si le rayon de la particule est > 5 alors on divise son rayon par deux
-                    if (particule.rayon > 5) {
+                    if (particule.rayon > 5 && weapon.category === "laser") {
                         let rayon = particule.rayon / 2;
                         let x = particule.x;
                         let y = particule.y;
@@ -149,21 +172,57 @@ class StellarObject {
                         let y2 = particule.y;
                         let dx2 = particule.velocity.x - 0.25;
                         let dy2 = particule.velocity.y - 0.5;
+                        this.drawExplosion(particule, 40, secondary.laserColor);
                         particules.push(
-                            new StellarObject(x, y, rayon, dx1, dy1, heroShip, asteroidColor, true, false)
+                            new StellarObject(
+                                x,
+                                y,
+                                rayon,
+                                dx1,
+                                dy1,
+                                heroShip,
+                                asteroidColor,
+                                true,
+                                false
+                            )
                         );
                         particules.push(
-                            new StellarObject(x, y, rayon, dx2, dy2, heroShip, asteroidColor, true, false)
+                            new StellarObject(
+                                x,
+                                y,
+                                rayon,
+                                dx2,
+                                dy2,
+                                heroShip,
+                                asteroidColor,
+                                true,
+                                false
+                            )
                         );
-                    }
+                    } else if (weapon.category === "bomb") {
+                        this.drawBombExplosion(particule, secondary.shipColor);
+                    } else this.drawExplosion(particule, 40, secondary.laserColor);
                     //Detruit les laser et les asteroids qui rentrent en collision
                     secondary.objectToDelete(particules, particule);
                     secondary.objectToDelete(heroWeapons, weapon);
                     asteroidsDestroyedCount++; //incremente le nombre d'asteroids detruit
                 }
                 //Detruit les laser qui vont trop loin en X
-                if (weapon.x > 4 * canvas.width) secondary.objectToDelete(heroWeapons, weapon);
+                if (weapon.x > 4 * canvas.width)
+                    secondary.objectToDelete(heroWeapons, weapon);
             });
+            arrBombExploded.map(bomb => {
+                if (
+                    utils.distance(particule.x, particule.y, bomb.x, bomb.y) <=
+                    particule.rayon + bomb.rayon
+                ) {
+                    //Efface l asteroid apres la collision avec le vaisseau mere bigShip
+                    secondary.objectToDelete(particules, particule);
+                    //dessine l explosion asreroid contre le bigShip
+                    this.drawExplosion(particule, 40, secondary.shipColor);
+                    asteroidsDestroyedCount++; //incremente le nombre d'asteroids detruit
+                }
+            })
         });
     };
 }
@@ -198,6 +257,7 @@ class StarShip {
         this.laserEnergyLevel = 100;
         this.laserEnergyConsumption = Math.floor(100 / 3);
         this.laserLoadTime = 0.2; // temps pour recharger la jauge laser;
+        this.haveBomb = false; // le vaisseau transporte t il une bombe
     }
 
     draw() {
@@ -414,10 +474,17 @@ class StarShip {
             this.keys[32] &&
             this.laserEnergyLevel - this.laserEnergyConsumption >= 0
         ) {
-            spawnWeapon(); //fait apparetre un laser
+            spawnLaser(); //fait apparetre un laser
             this.laserEnergyLevel -= this.laserEnergyConsumption; // fait baisser le niveau d'energie alloué aux laser à chaque tir
             shootCount++; // Compte le nombre de tire effectué
             this.keys[32] = false; // Empeche de tirer tous les lasers en meme temps
+        }
+        // B -> tire une bombe
+        if (
+            this.keys[66] && this.haveBomb // tire seulement si le vaisseau transporte une bombe
+        ) {
+            spawnBomb(); //fait apparetre une bomb
+            this.haveBomb = false; // la bombe a ete tire donc le vaisseau ne transporte plus de bombe
         }
 
         // this.defSpeed = 0.1;
@@ -450,17 +517,29 @@ class StarShip {
 }
 // Objet pour les lasers
 class ShipWeapon {
-    constructor() {
-        this.x = heroShip.x + heroShip.width;
-        this.y = heroShip.y + heroShip.height / 2;
-        this.speed = 4;
-        this.width = 8;
-        this.height = 2;
+    constructor(x, y, speed, width, height, category) {
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.width = width;
+        this.height = height;
         this.collisionBox = {};
+        this.category = category;
     }
     draw() {
+        if (this.category === "laser") {
+            this.drawLaser();
+        } else if (this.category === "bomb") this.drawBomb();
+    }
+    drawLaser() {
         ctx.beginPath();
         ctx.fillStyle = secondary.laserColor;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.closePath();
+    }
+    drawBomb() {
+        ctx.beginPath();
+        ctx.fillStyle = secondary.shipColor;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.closePath();
     }
@@ -590,6 +669,39 @@ class ExplodeAsteroid {
         this.draw();
     }
 }
+
+// objet qui gere l esplosion des bombes
+class BombExplosion {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.rayon = 0;
+        this.color = color;
+        this.opacity = 1;
+    }
+    draw() {
+        ctx.save(); // empeche la propagation du globalAlpha
+        ctx.beginPath();
+        // ctx.strokeStyle = this.color;
+        ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
+        // ctx.stroke();
+        ctx.globalAlpha = this.opacity; // gere la transparence des particules d explosions
+        ctx.fillStyle = this.color;
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore(); // empeche la propagation du globalAlpha
+    }
+    update() {
+        this.opacity -= 0.01; // la particule d explosion est un peu plus transparente a chaque rafraichissement de l ecran
+        this.rayon += 1.5
+        if (this.opacity <= 0) {
+            this.opacity = 0; //sans cette ligne la particule retrouve toute son opacité du à la valeur négative
+            // supprime la particule
+            secondary.objectToDelete(arrBombExploded, this);
+        }
+        this.draw();
+    }
+}
 //Construit le vaisseau mere bigShip
 const bigShip = new MotherShip();
 // Spawn des asteroides
@@ -598,14 +710,18 @@ let clearIt; // variable pour stocker le setInterval et par la suite pouvoir l e
 const spawnAsteroids = () => {
     clearIt = window.setInterval(() => {
         // x et y determine la position, dx et dy la vélocité et rayon le rayon de l asteroide
-        let x = utils.randomInt(canvas.width, canvas.width + (canvas.width * 20) / 100);
+        let x = utils.randomInt(
+            canvas.width,
+            canvas.width + (canvas.width * 20) / 100
+        );
         let y = utils.randomInt(minMapY, maxMapY);
         const dx = utils.randomFloat(-0.3, -0.1);
         const dy = utils.randomFloat(-0.05, 0.05);
         const rayon = utils.randomInt(3, 15);
         const color = "rgba(242, 134, 72, 1)";
         //Vérifie que l asteroide ne spawn pas sur une autre asteroide deja presente et le push dans le Array
-        if (asteroids.length !== 0) { // une condition pour etre sure qu il existe deja une asteroid
+        if (asteroids.length !== 0) {
+            // une condition pour etre sure qu il existe deja une asteroid
             for (let i = 0; i < asteroids.length; i++) {
                 if (
                     utils.distance(x, y, asteroids[i].x, asteroids[i].y) <=
@@ -625,7 +741,19 @@ const spawnAsteroids = () => {
         }
         // On ajoute des asteroides tant que le nombre max d asteroids n est pas atteint
         if (asteroids.length < secondary.nbMaxAsteroids) {
-            asteroids.push(new StellarObject(x, y, rayon, dx, dy, heroShip, asteroidColor, true, false));
+            asteroids.push(
+                new StellarObject(
+                    x,
+                    y,
+                    rayon,
+                    dx,
+                    dy,
+                    heroShip,
+                    asteroidColor,
+                    true,
+                    false
+                )
+            );
         }
     }, timeSpawn); //Ce parametre est celui de window.setInterval qui englobe la fonction. Determine l interval entre les spawn
 };
@@ -655,14 +783,30 @@ const spawnHeroShip = () => {
 };
 
 let heroWeapons = [];
-const spawnWeapon = () => {
-    heroWeapons.push(new ShipWeapon());
+const spawnLaser = () => {
+    const x = heroShip.x + heroShip.width;
+    const y = heroShip.y + heroShip.height / 2;
+    const speed = 4;
+    const width = 8;
+    const height = 2;
+    const category = "laser";
+    heroWeapons.push(new ShipWeapon(x, y, speed, width, height, category));
+};
+const spawnBomb = () => {
+    const x = heroShip.x + heroShip.width;
+    const y = heroShip.y + heroShip.height / 2;
+    const speed = 4;
+    const width = 8;
+    const height = 2;
+    const category = "bomb";
+    heroWeapons.push(new ShipWeapon(x, y, speed, width, height, category));
 };
 
 //Rafraichie le canvas en 60 fps
 let animationFrame;
 const animate = () => {
-    animationFrame = window.setInterval(() => { // une function animationFrame a été créé car la méthode créait un bug
+    animationFrame = window.setInterval(() => {
+        // une function animationFrame a été créé car la méthode créait un bug
         if (!secondary.stop) {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // efface le canvas a chaque rafraichissement
             bigShip.draw();
@@ -670,6 +814,7 @@ const animate = () => {
             heroShip.update();
             heroWeapons.map((weapon) => weapon.update(heroWeapons));
             arrExploded.map((particule) => particule.update(arrExploded));
+            arrBombExploded.map((particule) => particule.update(arrBombExploded));
             secondary.score(asteroidsDestroyedCount, shootCount);
             if (heroShip.laserEnergyLevel < 100) {
                 heroShip.laserEnergyLevel += heroShip.laserLoadTime; //fait remonter le niveau d energie des lasers a chaque rafraichissement
@@ -701,7 +846,10 @@ const init = () => {
     spawnAsteroids();
     secondary.stopToFalse(); //passe secondary.stop a false pour lancer la function animate
     bigShip.life = 100;
-    bonusChance = utils.createChanceArr(bonus.bonusDice.thinks, bonus.bonusDice.weigth); // tableau stoquant les bonus dans lequel sera tiré au sort un bonus a chaque creation de l objet bonus
+    bonusChance = utils.createChanceArr(
+        bonus.bonusDice.thinks,
+        bonus.bonusDice.weigth
+    ); // tableau stoquant les bonus dans lequel sera tiré au sort un bonus a chaque creation de l objet bonus
 };
 init();
 animate();
