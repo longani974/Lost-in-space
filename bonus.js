@@ -20,30 +20,49 @@ const giveBomb = (ship) => {
 };
 
 const fixShip = (ship) => {
+  //repare le vaiseau
   if (ship.life <= 95) {
     ship.life += 5;
   } else if (ship.life > 95) {
     ship.life = 100;
   }
 };
+let onscreen = [];
 
-const applyBonus = (Number, heroShip, motherShip) => {
+function textBonus(ctx, text, index) {
+  ctx.fillStyle = "yellow";
+  ctx.font = "16px serif";
+  ctx.fillText(text, 10, index * 20);
+}
+function deleteFirstArr() {
+  onscreen.splice(0, 1);
+}
+
+const applyBonus = (Number, heroShip, motherShip, ctx) => {
   // applique le bonus correspondant au Number
   switch (Number) {
     case 1:
       speedUp(heroShip);
+      onscreen.push("Speed +");
+      setTimeout(deleteFirstArr, 2000);
       console.log("speedUp");
       break;
     case 2:
       laserLoadFatser(heroShip);
+      onscreen.push("Load +");
+      setTimeout(deleteFirstArr, 2000);
       console.log("laserLoadFaster");
       break;
     case 3:
       giveBomb(heroShip);
+      onscreen.push("Bomb +");
+      setTimeout(deleteFirstArr, 2000);
       console.log("bigBomb");
       break;
     case 4:
       fixShip(motherShip);
+      onscreen.push("Life +");
+      setTimeout(deleteFirstArr, 2000);
       console.log("life++");
       break;
     default:
@@ -51,4 +70,4 @@ const applyBonus = (Number, heroShip, motherShip) => {
   }
 };
 
-export { bonusDice, speedUp, laserLoadFatser, applyBonus };
+export { bonusDice, speedUp, laserLoadFatser, applyBonus, textBonus, onscreen };

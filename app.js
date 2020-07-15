@@ -117,7 +117,7 @@ class StellarObject {
           //applique le bonus reçu
           const bonusNb = utils.randomInt(0, bonusChance.length - 1); //choisi un nombre au haseard entre 0 et la longueur moins 1 du tableau bonus chance
           const chance = bonusChance[bonusNb]; //stock le numero correspondant au bonus
-          bonus.applyBonus(chance, heroShip, bigShip); // applique le bonus correspondant
+          bonus.applyBonus(chance, heroShip, bigShip, ctx); // applique le bonus correspondant
           secondary.objectToDelete(particules, particule); //efface le bonus après avoir été intercepte
         }
       }
@@ -816,6 +816,7 @@ const animate = () => {
         heroShip.laserEnergyLevel += heroShip.laserLoadTime; //fait remonter le niveau d energie des lasers a chaque rafraichissement
       }
     }
+    bonus.onscreen.map((text, i) => bonus.textBonus(ctx, text, i + 1));
   }, 1000 / 60);
 };
 
