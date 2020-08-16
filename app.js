@@ -3,6 +3,8 @@ import * as ellasticCollisions from "./ellasticCollisions.js";
 import * as secondary from "./secondary.js";
 import * as bonus from "./bonus.js";
 
+secondary.playAudio("assets/sounds/videoplayback.wav", 0.3, true);
+
 const gameOverScreen = document.querySelector("#gameOver");
 
 const canvas = document.querySelector("#canvas");
@@ -119,6 +121,7 @@ class StellarObject {
           const chance = bonusChance[bonusNb]; //stock le numero correspondant au bonus
           bonus.applyBonus(chance, heroShip, bigShip, ctx); // applique le bonus correspondant
           secondary.objectToDelete(particules, particule); //efface le bonus après avoir été intercepte
+          secondary.playAudio("assets/sounds/fx/bonus.wav");
         }
       }
       //Detection collision d'un asteroide avec le vaisseau mere (bigShip)
@@ -134,6 +137,7 @@ class StellarObject {
         bigShip.life -= Math.floor(particule.rayon);
         // Si la jauge de vie est a zero la partie est finie -- gameOver
         if (bigShip.life <= 0) secondary.gameOver(gameOverScreen, init);
+        secondary.playAudio("assets/sounds/fx/asteroidExplosion.wav");
       }
       //Vérifie si les lasers touchent un asteroid et exécute les fonctions en consequence
       heroWeapons.map((weapon) => {
@@ -196,11 +200,13 @@ class StellarObject {
             );
           } else if (weapon.category === "bomb") {
             this.drawBombExplosion(particule, secondary.shipColor);
+            secondary.playAudio("assets/sounds/fx/bombExplosion.wav");
           } else this.drawExplosion(particule, 40, secondary.laserColor);
           //Detruit les laser et les asteroids qui rentrent en collision
           secondary.objectToDelete(particules, particule);
           secondary.objectToDelete(heroWeapons, weapon);
           asteroidsDestroyedCount++; //incremente le nombre d'asteroids detruit
+          secondary.playAudio("assets/sounds/fx/asteroidExplosion.wav");
         }
         //Detruit les laser qui vont trop loin en X
         if (weapon.x > 4 * canvas.width)
@@ -435,12 +441,10 @@ class StarShip {
     if (this.countKey > 1) {
       this.keys[32] = false;
     }
-    // Up
     if (this.keys[38]) {
       if (this.velY < this.speedY) {
         this.velY += this.defSpeed * this.acclerationY;
       }
-      this.drawThrusterUp();
     }
     // Down
     if (this.keys[40]) {
@@ -786,7 +790,9 @@ const spawnLaser = () => {
   const width = 8;
   const height = 2;
   const category = "laser";
+
   heroWeapons.push(new ShipWeapon(x, y, speed, width, height, category));
+  secondary.playAudio("assets/sounds/fx/laser.wav");
 };
 const spawnBomb = () => {
   const x = heroShip.x + heroShip.width;
@@ -796,6 +802,7 @@ const spawnBomb = () => {
   const height = 2;
   const category = "bomb";
   heroWeapons.push(new ShipWeapon(x, y, speed, width, height, category));
+  secondary.playAudio("assets/sounds/fx/bombDroped.wav");
 };
 
 //Rafraichie le canvas en 60 fps
