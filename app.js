@@ -3,7 +3,7 @@ import * as ellasticCollisions from "./ellasticCollisions.js";
 import * as secondary from "./secondary.js";
 import * as bonus from "./bonus.js";
 
-secondary.playAudio("assets/sounds/videoplayback.wav", 0.3, true);
+secondary.playAudio("assets/sounds/videoplayback.wav", 0.3, true, true);
 
 const gameOverScreen = document.querySelector("#gameOver");
 

@@ -1,60 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Astroids</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" href="#" type="image/x-icon" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Astroids</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="shortcut icon" href="#" type="image/x-icon" />
-</head>
-
-<body>
-  <div id="contenair">
-    <div id="top">
-      <div id="gameOver">
-        <h2>Game over</h2>
-        <p>Press enter to play again</p>
+  <body>
+    <div id="contenair">
+      <div id="top">
+        <div id="gameOver">
+          <h2>Game over</h2>
+          <p>Press enter to play again</p>
+        </div>
+        <h1>Lost in space</h1>
       </div>
-      <h1>Lost in space</h1>
+      <div id="left">
+        <h2>Setting:</h2>
+        <form class="settingValues">
+          <label for="shipColor">Ship color:</label>
+          <input type="color" name="shipColor" id="shipColor" value="#BF2A2A" />
+          <label for="laserColor">Laser color:</label>
+          <input
+            type="color"
+            name="laserColor"
+            id="laserColor"
+            value="#D92555"
+          />
+          <label for="thrusterColor">Thruster color:</label>
+          <input
+            type="color"
+            name="thrusterColor"
+            id="thursterColor"
+            value="#2a73c0"
+          />
+          <label for="nbAsteroids">Number max of astroids:</label>
+          <input
+            type="range"
+            name="nbAsteroids"
+            id="nbAsteroids"
+            min="10"
+            max="150"
+          />
+        </form>
+      </div>
+
+      <canvas id="canvas"> </canvas>
+
+      <div id="right">
+        <h2>Score:</h2>
+        <p>Asteroids destroyed:</p>
+        <span id="asteroidDestroyed">0</span>
+        <p>Shoot number:</p>
+        <span id="shootNb">0</span>
+        <p>Precision:</p>
+        <span id="precision">0%</span>
+      </div>
+      <div id="bottom">
+        <p>Use arrows to control your ship.</p>
+        <p>Press space to shoot a laser.</p>
+        <p>Press enter to restart the game.</p>
+      </div>
     </div>
-    <div id="left">
-      <h2>Setting:</h2>
-      <form class="settingValues">
-        <label for="shipColor">Ship color:</label>
-        <input type="color" name="shipColor" id="shipColor" value="#BF2A2A">
-        <label for="laserColor">Laser color:</label>
-        <input type="color" name="laserColor" id="laserColor" value="#D92555">
-        <label for="thrusterColor">Thruster color:</label>
-        <input type="color" name="thrusterColor" id="thursterColor" value="#2a73c0">
-        <label for="nbAsteroids">Number max of astroids:</label>
-        <input type="range" name="nbAsteroids" id="nbAsteroids" min="10" max="150">
-      </form>
 
-    </div>
-
-    <canvas id="canvas">
-    </canvas>
-
-    <div id="right">
-      <h2>Score:</h2>
-      <p>Asteroids destroyed:</p>
-      <span id="asteroidDestroyed">0</span>
-      <p>Shoot number:</p>
-      <span id="shootNb">0</span>
-      <p>Precision:</p>
-      <span id="precision">0%</span>
-
-    </div>
-    <div id="bottom">
-      <p>Use arrows to control your ship.</p>
-      <p>Press space to shoot a laser.</p>
-      <p>Press enter to restart the game.</p>
-    </div>
-  </div>
-
-  <script type="module" src="app.js"></script>
-</body>
-
+    <script type="module" src="app.js"></script>
+  </body>
 </html>

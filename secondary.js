@@ -78,12 +78,13 @@ const objectToDelete = (arrObjects, object) => {
   arrObjects.splice(deleteObject, 1); //enleve cet objet du tableau
 };
 
-const playAudio = (path, volume = 1, loop = false) => {
+const playAudio = (path, volume = 1, loop = false, autoplay = false) => {
   const audio = new Audio(path);
   audio.load();
-  audio.play();
+  autoplay ? (audio.autoplay = autoplay) : audio.play();
   audio.volume = volume;
   audio.loop = loop;
+  console.log("music");
 };
 export {
   //setting
