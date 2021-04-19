@@ -1,42 +1,42 @@
 /* Setting */
 let nbMaxAsteroids = 50;
-let shipColor = "rgba(191, 42, 42, 1)";
-let laserColor = "rgba(217, 37, 85, 1)";
-let thrusterColor = "#2a73c0";
+let shipColor = 'rgba(191, 42, 42, 1)';
+let laserColor = 'rgba(217, 37, 85, 1)';
+let thrusterColor = '#2a73c0';
 
-const inputs = document.querySelectorAll(".settingValues input");
+const inputs = document.querySelectorAll('.settingValues input');
 
 function handleUpdate() {
-  const suffix = this.dataset.sizing || ""; //dataset.sizing correspond a data-sizing dans les input du HTML
+  const suffix = this.dataset.sizing || ''; //dataset.sizing correspond a data-sizing dans les input du HTML
   //console.log(this.name, this.value + suffix)
   document.documentElement.style.setProperty(
     `--${this.name}`,
     this.value + suffix
   ); //document.documentElement === document.querySelector(":root")
-  if (this.name === "shipColor") {
+  if (this.name === 'shipColor') {
     shipColor = `${this.value + suffix}`;
   }
-  if (this.name === "laserColor") {
+  if (this.name === 'laserColor') {
     laserColor = `${this.value + suffix}`;
   }
-  if (this.name === "thrusterColor") {
+  if (this.name === 'thrusterColor') {
     thrusterColor = `${this.value + suffix}`;
   }
-  if (this.name === "nbAsteroids") {
+  if (this.name === 'nbAsteroids') {
     nbMaxAsteroids = `${this.value + suffix}`;
   }
 }
 
 const inputSetting = () => {
-  inputs.forEach((input) => input.addEventListener("change", handleUpdate)); // sur change et mousemove pour les changements se facent en direct
-  inputs.forEach((input) => input.addEventListener("mousemove", handleUpdate));
+  inputs.forEach((input) => input.addEventListener('change', handleUpdate)); // sur change et mousemove pour les changements se facent en direct
+  inputs.forEach((input) => input.addEventListener('mousemove', handleUpdate));
 };
 
 /* Score */
 
-const asteroidsDestroyed = document.querySelector("#asteroidDestroyed");
-const shootNumber = document.querySelector("#shootNb");
-const precision = document.querySelector("#precision");
+const asteroidsDestroyed = document.querySelector('#asteroidDestroyed');
+const shootNumber = document.querySelector('#shootNb');
+const precision = document.querySelector('#precision');
 
 //afficher les scores
 
@@ -57,13 +57,13 @@ function stopToFalse() {
 }
 
 function gameOver(gameOverScreen, func) {
-  playAudio("assets/sounds/fx/gameOver.wav", 0.07);
+  //playAudio("assets/sounds/fx/gameOver.wav", 0.07);
   stop = true; //Si stop === true la fonction animate ne s'exécute pas: donc le jeu s'arrete
-  gameOverScreen.style.display = "block"; //Affiche le texte du game over
+  gameOverScreen.style.display = 'block'; //Affiche le texte du game over
   //En appuyant sur entrer le jeu se relance normalement
-  document.addEventListener("keydown", function (e) {
+  document.addEventListener('keydown', function (e) {
     if (e.keyCode === 13) {
-      gameOverScreen.style.display = "none";
+      gameOverScreen.style.display = 'none';
       func();
     }
   });
@@ -84,7 +84,7 @@ const playAudio = (path, volume = 1, loop = false, autoplay = false) => {
   autoplay ? (audio.autoplay = autoplay) : audio.play();
   audio.volume = volume;
   audio.loop = loop;
-  console.log("music");
+  console.log('music');
 };
 export {
   //setting
