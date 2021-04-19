@@ -1,14 +1,14 @@
-import * as utils from "./utils.js";
-import * as ellasticCollisions from "./ellasticCollisions.js";
-import * as secondary from "./secondary.js";
-import * as bonus from "./bonus.js";
+import * as utils from './utils.js';
+import * as ellasticCollisions from './ellasticCollisions.js';
+import * as secondary from './secondary.js';
+import * as bonus from './bonus.js';
 
-secondary.playAudio("assets/sounds/videoplayback.wav", 0.3, true, true);
+//secondary.playAudio("assets/sounds/videoplayback.wav", 0.3, true, true);
 
-const gameOverScreen = document.querySelector("#gameOver");
+const gameOverScreen = document.querySelector('#gameOver');
 
-const canvas = document.querySelector("#canvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.querySelector('#canvas');
+const ctx = canvas.getContext('2d');
 
 canvas.width = 800; //window.innerWidth;
 canvas.height = 400; //window.innerHeight;
@@ -24,8 +24,8 @@ const timeSpawn = 500;
 let animFrame;
 
 let asteroidsDestroyedCount = 0;
-const asteroidColor = "rgba(242, 134, 72, 1)";
-const bonusColor = "yellow";
+const asteroidColor = 'rgba(242, 134, 72, 1)';
+const bonusColor = 'yellow';
 let shootCount = 0;
 
 let arrExploded = [];
@@ -121,7 +121,7 @@ class StellarObject {
           const chance = bonusChance[bonusNb]; //stock le numero correspondant au bonus
           bonus.applyBonus(chance, heroShip, bigShip, ctx); // applique le bonus correspondant
           secondary.objectToDelete(particules, particule); //efface le bonus après avoir été intercepte
-          secondary.playAudio("assets/sounds/fx/bonus.wav");
+          //secondary.playAudio("assets/sounds/fx/bonus.wav");
         }
       }
       //Detection collision d'un asteroide avec le vaisseau mere (bigShip)
@@ -137,7 +137,7 @@ class StellarObject {
         bigShip.life -= Math.floor(particule.rayon);
         // Si la jauge de vie est a zero la partie est finie -- gameOver
         if (bigShip.life <= 0) secondary.gameOver(gameOverScreen, init);
-        secondary.playAudio("assets/sounds/fx/asteroidExplosion.wav");
+        //secondary.playAudio("assets/sounds/fx/asteroidExplosion.wav");
       }
       //Vérifie si les lasers touchent un asteroid et exécute les fonctions en consequence
       heroWeapons.map((weapon) => {
@@ -161,7 +161,7 @@ class StellarObject {
           }
           //this.drawExplosion(particule, 80, secondary.laserColor);
           // Si le rayon de la particule est > 5 alors on divise son rayon par deux
-          if (particule.rayon > 5 && weapon.category === "laser") {
+          if (particule.rayon > 5 && weapon.category === 'laser') {
             let rayon = particule.rayon / 2;
             let x = particule.x;
             let y = particule.y;
@@ -198,15 +198,15 @@ class StellarObject {
                 false
               )
             );
-          } else if (weapon.category === "bomb") {
+          } else if (weapon.category === 'bomb') {
             this.drawBombExplosion(particule, secondary.shipColor);
-            secondary.playAudio("assets/sounds/fx/bombExplosion.wav");
+            //secondary.playAudio("assets/sounds/fx/bombExplosion.wav");
           } else this.drawExplosion(particule, 40, secondary.laserColor);
           //Detruit les laser et les asteroids qui rentrent en collision
           secondary.objectToDelete(particules, particule);
           secondary.objectToDelete(heroWeapons, weapon);
           asteroidsDestroyedCount++; //incremente le nombre d'asteroids detruit
-          secondary.playAudio("assets/sounds/fx/asteroidExplosion.wav");
+          //secondary.playAudio("assets/sounds/fx/asteroidExplosion.wav");
         }
         //Detruit les laser qui vont trop loin en X
         if (weapon.x > 4 * canvas.width)
@@ -263,7 +263,7 @@ class StarShip {
 
   draw() {
     ctx.beginPath();
-    ctx.fillStyle = "rgba(43, 47, 114, 1)";
+    ctx.fillStyle = 'rgba(43, 47, 114, 1)';
     // partie du milieu (visible lorsque la jauge du laser se vide)
     ctx.fillRect(this.x, this.y, this.width, this.height);
     ctx.fillStyle = secondary.shipColor;
@@ -527,9 +527,9 @@ class ShipWeapon {
     this.category = category;
   }
   draw() {
-    if (this.category === "laser") {
+    if (this.category === 'laser') {
       this.drawLaser();
-    } else if (this.category === "bomb") this.drawBomb();
+    } else if (this.category === 'bomb') this.drawBomb();
   }
   drawLaser() {
     ctx.beginPath();
@@ -568,11 +568,11 @@ class MotherShip {
     ctx.save();
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.rayon, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgba(43, 47, 114, 1";
+    ctx.fillStyle = 'rgba(43, 47, 114, 1';
     ctx.fill();
     ctx.closePath();
-    ctx.globalCompositeOperation = "source-atop"; // permet de dessiner uniquement sur le vaisseau mere et ne depasse pas
-    ctx.fillStyle = "rgba(0, 17, 38, 1)";
+    ctx.globalCompositeOperation = 'source-atop'; // permet de dessiner uniquement sur le vaisseau mere et ne depasse pas
+    ctx.fillStyle = 'rgba(0, 17, 38, 1)';
     ctx.fillRect(3, 15, 10, 10);
     ctx.fillRect(55, 100, 20, 20);
     ctx.fillRect(30, 160, 10, 10);
@@ -587,7 +587,7 @@ class MotherShip {
     ctx.fillRect(5, 380, 5, 5);
     ctx.fillRect(15, 140, 5, 5);
     ctx.beginPath();
-    ctx.strokeStyle = "rgba(0, 17, 38, 1)";
+    ctx.strokeStyle = 'rgba(0, 17, 38, 1)';
     ctx.lineWidth = 2;
     ctx.moveTo(8, 25);
     ctx.lineTo(8, 130);
@@ -621,11 +621,11 @@ class MotherShip {
     ctx.closePath();
     ctx.restore();
     // Jauge de vie
-    ctx.fillStyle = "rgba(191, 42, 42, 1)";
+    ctx.fillStyle = 'rgba(191, 42, 42, 1)';
     ctx.fillRect(7, 75, 40, 20);
     ctx.fillRect(7, 325, 40, -20);
     const damageGauge = ((this.life - 100) * 40) / 100; // determine la grandeur de la jauge de vie
-    ctx.fillStyle = "rgba(0, 17, 38, 1)";
+    ctx.fillStyle = 'rgba(0, 17, 38, 1)';
     ctx.fillRect(47, 75, damageGauge, 20);
     ctx.fillRect(47, 325, damageGauge, -20);
   }
@@ -718,7 +718,7 @@ const spawnAsteroids = () => {
     const dx = utils.randomFloat(-0.3, -0.1);
     const dy = utils.randomFloat(-0.05, 0.05);
     const rayon = utils.randomInt(3, 15);
-    const color = "rgba(242, 134, 72, 1)";
+    const color = 'rgba(242, 134, 72, 1)';
     //Vérifie que l asteroide ne spawn pas sur une autre asteroide deja presente et le push dans le Array
     if (asteroids.length !== 0) {
       // une condition pour etre sure qu il existe deja une asteroid
@@ -789,10 +789,10 @@ const spawnLaser = () => {
   const speed = 4;
   const width = 8;
   const height = 2;
-  const category = "laser";
+  const category = 'laser';
 
   heroWeapons.push(new ShipWeapon(x, y, speed, width, height, category));
-  secondary.playAudio("assets/sounds/fx/laser.wav");
+  //secondary.playAudio("assets/sounds/fx/laser.wav");
 };
 const spawnBomb = () => {
   const x = heroShip.x + heroShip.width;
@@ -800,9 +800,9 @@ const spawnBomb = () => {
   const speed = 4;
   const width = 8;
   const height = 2;
-  const category = "bomb";
+  const category = 'bomb';
   heroWeapons.push(new ShipWeapon(x, y, speed, width, height, category));
-  secondary.playAudio("assets/sounds/fx/bombDroped.wav");
+  //secondary.playAudio("assets/sounds/fx/bombDroped.wav");
 };
 
 //Rafraichie le canvas en 60 fps
@@ -828,12 +828,12 @@ const animate = () => {
 };
 
 //key events
-document.addEventListener("keydown", function (e) {
+document.addEventListener('keydown', function (e) {
   if (e.keyCode === 32 || 37 || 38 || 39 || 40) e.preventDefault();
   heroShip.keys[e.keyCode] = true;
   if (e.keyCode === 32) heroShip.countKey += 1; // Annule l'autorepeat de keydown de la touche espace
 });
-document.addEventListener("keyup", function (e) {
+document.addEventListener('keyup', function (e) {
   heroShip.keys[e.keyCode] = false;
   if (e.keyCode === 32) heroShip.countKey = 0; // Reinitialse la touche espace
 });
